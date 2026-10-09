@@ -1,9 +1,10 @@
 {
  "name": "إعدادية سيناء للبنين",
- "short_name": "إعدادية سيناء",
+ "short_name": "إعدادية سيناء للبنين",
  "description": "جدول الدروس وبوابة المدرسين والطلاب",
  "lang": "ar",
  "dir": "rtl",
+ "id": "./",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
