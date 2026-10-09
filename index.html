@@ -360,7 +360,7 @@ function seedMeta(){[...new Set(DATA.map(e=>e[0]))].forEach(n=>{const m=META[n];
 function build(){T=[];U=[];DATA.forEach(([n,sj,a])=>{let t=T.indexOf(n);if(t<0)t=T.push(n)-1;a.forEach(([s,h])=>{const secs=(Array.isArray(s)?[...s]:[s]).sort((x,y)=>x-y);if(secs.length&&secs.every(x=>x<NS))U.push({s:secs[0],secs,t,sj,h,cap:Math.ceil(h/5)})})});
   const S0=T.map(n=>sh(n,0));SH=T.map((n,i)=>S0.filter(x=>x==S0[i]).length>1?sh(n,1):S0[i]);
   B=T.map(n=>{const m=META[n];if(!m||!m.bl||!m.bl.length)return null;const S=new Set(m.bl);return(d,p)=>S.has(d+','+p)})}
-const sig=()=>hash(canon([DATA,SN,META]));
+const sig=()=>hash(canon([DATA,SN,META,PER]));
 function applyTT(){if(TT&&TT.sig==sig()&&Array.isArray(TT.g)&&TT.g.length==NS){g=TT.g;rooms();STALE=0}else{g=[];R=[];STALE=TT?1:0}}
 
 /* ---------- timetable solver ---------- */
@@ -2645,6 +2645,41 @@ const _pStudent18=pStudent;pStudent=function(){let h=_pStudent18();if(PV.s==null
   return `<div class="banner warn">${ic('alert')} أكو طلاب بهذه الشعبة عندهم إنذار غياب. ابحث عن اسمك بالقائمة واضغطه حتى تشوف التفاصيل.</div>`+h};
 function awShow(b){const[n,l]=b.dataset.w.split('|').map(Number);const name=b.firstChild.textContent.trim();const w=document.createElement('div');w.className='zoom inst';w.onclick=()=>w.remove();
   w.innerHTML=`<div class="box" onclick="event.stopPropagation()"><h3 style="color:${AWC[l]}">⚠ ${AWL[l]}</h3><p style="margin:0 0 6px">الطالب: <b>${esc(name)}</b></p><p style="margin:0 0 6px">مجموع أيام الغياب: <b>${toAr(n)}</b> يوماً (بدون الجمعة والسبت والعطل).</p><p class="muted" style="margin:0 0 10px">${l<3?'يرجى الالتزام بالدوام ومراجعة إدارة المدرسة مع ولي الأمر.':'يرجى مراجعة إدارة المدرسة مع ولي الأمر فوراً.'}</p><button class="btn" onclick="this.closest('.zoom').remove()">فهمت</button></div>`;document.body.appendChild(w)}
+
+/* ================= v19: Sun–Tue 7 lessons, Wed–Thu 6; every section's day is balanced (6–7 lessons, no short days) ================= */
+PER.splice(0,5,7,7,7,6,6);
+const secH=()=>{const h=new Array(NS).fill(0);U.forEach(u=>u.secs.forEach(s=>{if(s<NS)h[s]+=u.h}));return h};
+let SHH=[];
+/* the target per day: as even as possible, never above that day's periods */
+function dayT(H){const t=[0,0,0,0,0];let r=Math.min(H,PER.reduce((a,b)=>a+b,0));while(r>0){let k=-1;for(let d=0;d<5;d++)if(t[d]<PER[d]&&(k<0||t[d]<t[k]||(t[d]==t[k]&&PER[d]>PER[k])))k=d;if(k<0)break;t[k]++;r--}return t}
+let DTG=[];
+init=function(){g=[];SHH=secH();DTG=SHH.map(H=>{const t=dayT(H);return[Math.min(...t),Math.max(...t)]});const fixed=[...Array(NS)].map(()=>new Array(35).fill(null));
+  for(let s=0;s<NS;s++){const cells=fixed[s].slice();
+    /* fill each day from the first period, day by day following the balanced target, then shuffle within the week */
+    const t=dayT(SHH[s]),free=[];for(let d=0;d<5;d++)for(let p=0;p<t[d];p++)if(cells[d*7+p]==null)free.push(d*7+p);
+    for(let d=0;d<5;d++)for(let p=t[d];p<PER[d];p++)if(cells[d*7+p]==null)free.push(d*7+p);
+    const n0=Math.min(free.length,SHH[s]);for(let i=n0-1;i>0;i--){const j=rnd(i+1);[free[i],free[j]]=[free[j],free[i]]}
+    let fi=0;U.forEach((u,ui)=>{if(u.s!=s)return;for(let k=0;k<u.h;k++){let pos=free[fi++];while(pos!=null&&cells[pos]!=null)pos=free[fi++];if(pos==null)return;cells[pos]=ui;for(const o of u.secs)if(o!=s)fixed[o][pos]=ui}});
+    for(let i=0;i<35;i++)if(cells[i]==null||i%7>=PER[i/7|0])cells[i]=-1;
+    g.push(DAYS.map((_,d)=>cells.slice(d*7,d*7+7)))}};
+dc=function(s,d){const c={};let x=0,e=0,n=0;const A=g[s][d];for(let p=0;p<PER[d];p++){const u=A[p];if(u<0)e=1;else{n++;if(e)x+=4;c[u]=(c[u]||0)+1;if(c[u]>U[u].cap)x+=5}}
+  for(let p=PER[d];p<7;p++)if(A[p]>=0)x+=20;
+  const T2=DTG[s];if(T2){if(n<T2[0])x+=4*(T2[0]-n);if(n>T2[1])x+=4*(n-T2[1])}return x};
+/* lessons per day for every section (for the check box) */
+const dayLoad=s=>DAYS.map((_,d)=>{let n=0;for(let p=0;p<PER[d];p++)if(g[s][d][p]>=0)n++;return n});
+/* a saved timetable made with the old 7×5 periods is rebuilt automatically when the owner opens the system */
+let RG19=0;const _applyTT19=applyTT;applyTT=function(){_applyTT19();if(STALE&&OWN&&!RG19&&!GENING&&TT&&TT.sig==hash(canon([DATA,SN,META]))){RG19=1;setTimeout(()=>{try{gen(1);toast('أعيد توليد الجدول: الأحد–الثلاثاء ٧ دروس، الأربعاء والخميس ٦ دروس')}catch(e){}},300)}};
+const _verifyBox19=verifyBox;verifyBox=function(...a){let h=_verifyBox19(...a);if(!g.length||STALE)return h;
+  const rows=SN.map((n,s)=>{const L=dayLoad(s);return `<tr><td class="l"><b>${esc(n)}</b></td>${L.map(v=>`<td>${toAr(v)}</td>`).join('')}<td><b>${toAr(L.reduce((a,b)=>a+b,0))}</b></td></tr>`}).join('');
+  return h+`<div class="box"><h3>${ic('cal')} عدد الدروس اليومية لكل شعبة</h3><p class="muted" style="margin:0 0 6px">الأحد والاثنين والثلاثاء ٧ دروس، الأربعاء والخميس ٦ دروس. الدروس موزعة بالتساوي على أيام الأسبوع.</p><div class="tw"><table><tr><th class="l">الشعبة</th>${DAYS.map(d=>`<th>${d}</th>`).join('')}<th>المجموع</th></tr>${rows}</table></div></div>`};
+const _pick19=pick;pick=function(){const r=_pick19();if(r[2]>=PER[r[1]])r[2]=rnd(PER[r[1]]);return r};
+solve=function(){init();const t0=Date.now(),TL=13000;let T0=3,best=null,bf=1e9,T=T0;
+  for(let it=0;it<9e7;it++){if(it%2000==0){const f=full(),el=Date.now()-t0;if(f<bf){bf=f;best=g.map(x=>x.map(y=>y.slice()))}if(f==0||el>TL)break;T=T0*Math.pow(.01/T0,el/TL)}
+    let s,d1,p1;if(Math.random()<.5)[s,d1,p1]=pick();else{s=rnd(NS);d1=rnd(5);p1=rnd(PER[d1])}
+    const d2=Math.random()<.4?d1:rnd(5),p2=rnd(PER[d2]);if(d1==d2&&p1==p2)continue;const a={d:d1,p:p1},b={d:d2,p:p2},S=swapSet(s,a,b);
+    const f=()=>{let v=tc(d1,p1)+tc(d2,p2);for(const x of S)v+=dc(x,d1)+(d1==d2?0:dc(x,d2));return v};const b0=f();
+    doSwap(S,a,b);const dl=f()-b0;if(dl>0&&Math.random()>Math.exp(-dl/T))doSwap(S,a,b)}
+  if(best&&full()>bf)g=best;return clash()};
 
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
