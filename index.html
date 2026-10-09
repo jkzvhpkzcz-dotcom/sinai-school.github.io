@@ -2449,7 +2449,12 @@ const TPL=[
  {k:'tahmil',c:'تعهدات',t:'تعهد تحميل طالب',stu:1,L:{nonum:1,toP:'',to:'',subj:'تعهد تحميل طالب',greet:'',body:'إني ولي أمر الطالب: («الطالب») في الصف: («الصف»)\nلا مانع لدي من شمول ولدي بنظام التحميل للعام الدراسي: («العام») في مادة: (..........)، علماً أنه لم يشمل بنظام التحميل للسنوات السابقة، وقد بُلّغت من قبل إدارة المدرسة بعدم إمكانية التراجع عن قرار التحميل ويُحتسب نفس المعدل للدروس التي قد نجح فيها للعام الماضي.\nولأجل ما تقدم وقعت .......',close:'',sig2:'بصمة وتوقيع ولي أمر الطالب'}}];
 const TPLC=['المدرسون','الطلاب','تعهدات','عام'];
 /* ---- auto-fill from the system ---- */
-function tplFill(L,{s,t}){const D=L.date?fmtD(L.date):'';const rep={};
+const tSex=f=>{const k=typeof genK=='function'?genK(f):'';return k||(typeof ydSex=='function'?ydSex(f.name):'m')};
+const SXW=[['باشر السيد («المدرس»)','باشرت السيدة («المدرس»)'],['انفك السيد («المدرس»)','انفكت السيدة («المدرس»)'],['السيد («المدرس») المدرس في','السيدة («المدرس») المدرسة في'],['السيد («المدرس»)','السيدة («المدرس»)']];
+function sexWords(x,fem){x=String(x??'');if(fem)for(const[a,b]of SXW)x=x.split(a).join(b);
+  const P=[['السيد/ة','السيد','السيدة'],['باشر/ت','باشر','باشرت'],['المومأ إليه/ا','المومأ إليه','المومأ إليها'],['المطبق/ة','المطبق','المطبقة'],['اسم المدرس/ة','اسم المدرس','اسم المدرسة'],['إليه/ا','إليه','إليها']];
+  for(const[a,m,f]of P)x=x.split(a).join(fem?f:m);return x}
+function tplFill(L,{s,t}){if(t){const fem=tSex(t)=='f';L={...L};['to','to2','body','tbl','after','sig2','att','note'].forEach(k=>{if(L[k])L[k]=sexWords(L[k],fem)})}const D=L.date?fmtD(L.date):'';const rep={};
   if(s){rep['«الطالب»']=s.n;rep['«الصف»']=s.s;rep['«العام»']=yrSlash().replace('/','-');rep['«المواليد»']=s.by?toAr(s.by):'';try{const a=cnt(s.id);rep['«الغياب»']=a&&a[0]?toAr(a[0])+' يوم':'لا يوجد'}catch(e){rep['«الغياب»']=''}
     try{const o=overall(s);rep['«النتيجة»']=o.short=='ناجح'?'النجاح من الدور الأول':o.short=='ناجح بالإكمال'?'النجاح من الدور الثاني':o.txt}catch(e){}}
   if(t){rep['«المدرس»']=t.name;rep['«الاختصاص»']=t.spec||''}
@@ -2468,7 +2473,7 @@ let LFOC='lf_body',LCAR=null;document.addEventListener('focusin',e=>{const t=e.t
 const hasTok=L=>['to','to2','body','tbl','after','sig2','att','note'].some(k=>/«[^»]+»/.test(L[k]||''));
 function lInsert(L,txt){const k=LFOC.slice(3),v=String(L[k]??'');const p=LCAR!=null&&LCAR<=v.length?LCAR:v.length;const pre=v.slice(0,p),post=v.slice(p);const sp=pre&&!/\s$/.test(pre)?' ':'';L[k]=pre+sp+txt+(post&&!/^\s/.test(post)?' ':'')+post;LCAR=(pre+sp+txt).length;return L}
 function lPick(kind,v){if(!LDRAFT)return;const L=lRead();let o=L;
-  if(!hasTok(L)&&!(TPL.find(x=>x.k==LTPLK)||{}).grades&&!(TPL.find(x=>x.k==LTPLK)||{}).leave){if(kind=='s'){const s=STA().find(x=>x.id==v);if(!s)return;LDRAFT=lInsert(L,'الطالب ('+s.n+') في الصف ('+s.s+')')}else{const f=STF.find(x=>x.id==v);if(!f)return;LDRAFT=lInsert(L,'السيد/ة ('+f.name+')'+(f.spec?' اختصاص ('+f.spec+')':''))}render();toast('أُضيف الاسم إلى «'+({to:'الجهة',body:'نص الكتاب',subj:'الموضوع',after:'النص بعد الجدول'}[LFOC.slice(3)]||'النص')+'»');return}
+  if(!hasTok(L)&&!(TPL.find(x=>x.k==LTPLK)||{}).grades&&!(TPL.find(x=>x.k==LTPLK)||{}).leave){if(kind=='s'){const s=STA().find(x=>x.id==v);if(!s)return;LDRAFT=lInsert(L,'الطالب ('+s.n+') في الصف ('+s.s+')')}else{const f=STF.find(x=>x.id==v);if(!f)return;LDRAFT=lInsert(L,(tSex(f)=='f'?'السيدة':'السيد')+' ('+f.name+')'+(f.spec?' اختصاص ('+f.spec+')':''))}render();toast('أُضيف الاسم إلى «'+({to:'الجهة',body:'نص الكتاب',subj:'الموضوع',after:'النص بعد الجدول'}[LFOC.slice(3)]||'النص')+'»');return}
   if(kind=='s'){const s=STA().find(x=>x.id==v);if(!s)return;const tp=TPL.find(x=>x.k==LTPLK);if(tp&&tp.grades)o=tplGrades(o,s);o=tplFill(o,{s})}
   if(kind=='t'){const f=STF.find(x=>x.id==v)||{name:v,spec:''};const tp=TPL.find(x=>x.k==LTPLK);o=tplFill(o,{t:f});if(tp&&tp.leave)o=tplLeave(o,f.name)}
   LDRAFT=o;render()}
