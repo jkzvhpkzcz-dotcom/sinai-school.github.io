@@ -1,10 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <script>window.OFFLINE_COPY=1;document.documentElement.classList.add("offline")</script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0c362f"><link rel="apple-touch-icon" href="icon-512.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="إعدادية سيناء"><script>window.APP_VER="12xkqp5-2026-10-08T08:30:00.958Z";if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){r.update()}).catch(function(){})});navigator.serviceWorker&&navigator.serviceWorker.addEventListener('controllerchange',function(){if(!window.__rl){window.__rl=1;location.reload()}});</script>
 <title>نظام إعدادية سيناء</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@600;700&amp;family=Readex+Pro:wght@400;500;600&amp;display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@600;700&family=Readex+Pro:wght@400;500;600&display=swap">
 <style id="css">
 /* Layout: school-green side rail (right, RTL) holding the crest and grouped menu; light working canvas; gold used only for the crest's accents and the active item */
 :root{
@@ -273,9 +272,10 @@ body{overflow-x:hidden}img{max-width:100%}#main,#pmain{grid-template-columns:min
 .ydp td{white-space:nowrap}.ydp tr.me td{background:color-mix(in srgb,var(--gold,#b48a2f) 22%,transparent)}
 .mbar{display:none}@media (max-width:900px){.mbar:not([hidden]){display:flex;position:fixed;inset-inline:0;bottom:0;z-index:60;background:var(--brand);border-top:1px solid rgba(224,196,124,.3);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));gap:4px;justify-content:space-around}.mbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--on-brand);font:600 12px/1.2 var(--f-body);padding:6px 2px;border-radius:10px;min-height:52px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.mbar button:active{background:rgba(255,255,255,.12)}.mbar svg{width:22px;height:22px}.pfoot{display:none!important}.portal,.app{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
 html.scr,html.scr body{height:100%;overflow:hidden;overscroll-behavior:none}html.scr #scr{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}html.scr .pbar{position:sticky!important;top:0}
-html.offline .lg-tabs [data-r=a]{display:none}.daytabs{flex-wrap:wrap;overflow:visible}.daytabs button{flex:1 1 auto}@media (max-width:420px){.bar .pill span{display:none}.bar .pill{padding:6px}.bar{gap:6px;padding-inline:10px}}.offl{border-top:1px dashed var(--line);padding-top:10px}
+html.offline .lg-tabs [data-r=a]{display:none}html.offline .lg-tabs{grid-template-columns:1fr 1fr!important}.login{align-content:center;row-gap:18px}.lg-foot{position:static!important;inset:auto!important;bottom:auto!important;padding:0 16px calc(10px + env(safe-area-inset-bottom,0px))}.lg-inst{position:relative;z-index:2}.daytabs{flex-wrap:wrap;overflow:visible}.daytabs button{flex:1 1 auto}@media (max-width:420px){.bar .pill span{display:none}.bar .pill{padding:6px}.bar{gap:6px;padding-inline:10px}}.offl{border-top:1px dashed var(--line);padding-top:10px}
 .pfoot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:6px 16px 4px}.pfoot .btn{min-height:44px;touch-action:manipulation}
 </style>
+
 <template id="shell">
 <div id="login" class="login" role="dialog" aria-modal="true" aria-labelledby="lgt">
   <div class="lg">
@@ -302,13 +302,13 @@ html.offline .lg-tabs [data-r=a]{display:none}.daytabs{flex-wrap:wrap;overflow:v
   <p class="lg-foot">المديرية العامة لتربية بغداد / الرصافة الأولى<span class="credit">تم تصميمه بواسطة (محمد عباس لعيبي)</span></p>
 </div>
 
-<div id="portal" class="portal" hidden="">
+<div id="portal" class="portal" hidden>
   <header class="pbar"><img data-logo="ui" alt=""><div class="bar-t"><h1 id="pt-title">إعدادية سيناء للبنين</h1><span id="pt-sub"></span></div><button type="button" class="btn ghost sm" onclick="instShow()" aria-label="تثبيت" title="تثبيت على الشاشة">تثبيت</button><button type="button" class="btn ghost sm" onclick="logout()" id="pt-out">خروج</button></header>
   <main id="pmain"></main>
   <div class="pfoot"><button type="button" class="btn ghost" onclick="instShow()">تثبيت على الشاشة</button><button type="button" class="btn ghost" onclick="logout()">تسجيل الخروج</button></div><p class="credit pcredit">تم تصميمه بواسطة (محمد عباس لعيبي)</p>
 </div>
 
-<div class="app" id="app" hidden="">
+<div class="app" id="app" hidden>
   <aside class="side" id="side" aria-label="القائمة الرئيسية">
     <div class="side-brand"><img data-logo="ui" alt=""><div><b>إعدادية سيناء للبنين</b><span>نظام الإدارة المدرسية</span></div></div>
     <nav id="nav"></nav>
@@ -321,7 +321,7 @@ html.offline .lg-tabs [data-r=a]{display:none}.daytabs{flex-wrap:wrap;overflow:v
       <button class="menu" id="menu" aria-label="فتح القائمة" onclick="$('app').classList.add('open')"></button>
       <img class="bar-logo" data-logo="ui" alt="">
       <div class="bar-t"><h1 id="ptitle">الرئيسية</h1><span id="pdate"></span></div>
-      <button class="btn ghost sm gs-b" onclick="gsOpen()" title="بحث عن اسم (Ctrl+K)" aria-label="بحث عام"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"></path></svg><span>بحث</span></button><button class="btn ghost sm inst-b" onclick="instShow()" title="تثبيت على الشاشة">تثبيت</button><span id="sync" class="pill"><i></i><span>جارٍ التحميل</span></span>
+      <button class="btn ghost sm gs-b" onclick="gsOpen()" title="بحث عن اسم (Ctrl+K)" aria-label="بحث عام"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"/></svg><span>بحث</span></button><button class="btn ghost sm inst-b" onclick="instShow()" title="تثبيت على الشاشة">تثبيت</button><span id="sync" class="pill"><i></i><span>جارٍ التحميل</span></span>
     </header>
     <main id="main"></main>
     <p class="credit mcredit">تم تصميمه بواسطة (محمد عباس لعيبي)</p>
@@ -2369,17 +2369,19 @@ async function ghZip(){const F=appFiles();if(!F)return toast('انشر البو�
   await saveFile('تطبيق إعدادية سيناء.zip',await z.generateAsync({type:'blob'}))}catch(e){toast('تعذّر تجهيز الملفات','err')}}
 function ghSave(){if(guard())return;const u=$('gh_u').value.trim().replace(/^@/,''),r=$('gh_r').value.trim(),t=$('gh_t').value.trim();if(!u)return toast('اكتب اسم المستخدم','err');ghPut({user:u,repo:r,auto:$('gh_a').checked?1:0,...(t?{token:t}:{}),err:''});$('gh_t').value='';toast('حُفظ الربط');render()}
 async function ghIndex(){const F=appFiles();if(!F)return toast('انشر البوابة أولاً','err');await saveFile('index.html',new Blob([F.files['index.html']],{type:'text/html'}));ghPut({ver:F.ver,at:new Date().toISOString()})}
+async function ghFiles(){const F=appFiles();if(!F)return toast('انشر البوابة أولاً','err');const L=[['index.html',new Blob([F.files['index.html']],{type:'text/html'})],['sw.js',new Blob([F.files['sw.js']],{type:'text/javascript'})],['manifest.webmanifest',new Blob([F.files['manifest.webmanifest']],{type:'application/json'})],['icon-192.png',new Blob([await iconPNG(192)],{type:'image/png'})],['icon-512.png',new Blob([await iconPNG(512)],{type:'image/png'})]];
+  for(const[n,b]of L){toast('تنزيل '+n);await saveFile(n,b)}ghPut({ver:F.ver,at:new Date().toISOString()})}
 async function ghZipAll(){await ghZip();const F=appFiles();if(F)ghPut({ver:F.ver,at:new Date().toISOString()})}
 function ghSave(){if(guard())return;const u=$('gh_u').value.trim().replace(/^@/,''),r=$('gh_r').value.trim();if(!u)return toast('اكتب اسم المستخدم','err');ghPut({user:u,repo:r,token:'',auto:0,err:''});toast('حُفظ');render()}
 V.app=()=>{CURX=null;if(!OWN)return emptyState('هذا القسم خاص بمالك النظام','');ghSub();const G=GH||{},url=ghURL(),cur=SNAP?(SNAP.ver||'')+'-'+(SNAP.at||''):'',up=G.ver&&G.ver==cur,{u,r}=ghRepo();
-  const repoURL=u?'https://github.com/'+u+'/'+(r||u+'.github.io')+'/upload/main':'';
+  const repoURL=u?'https://github.com/'+u+'/'+(r||u+'.github.io'):'';
   return `<div class="vh"><h2>تطبيق البوابة</h2><span class="sub">نسخة البوابة على GitHub Pages: تنثبت كتطبيق وتشتغل بدون إنترنت</span></div>
   ${G.token?`<div class="banner warn">${ic('alert')} Claude ما تسمح للنظام يتصل بـ GitHub مباشرة، فالرمز (Token) ما نحتاجه. <button class="btn ghost sm" onclick="ghPut({token:'',auto:0,err:''});render()">احذف الرمز المحفوظ</button></div>`:''}
   <div class="box ${up?'':'hl'}"><h3>${!G.at?'أول رفع للتطبيق':up?ic('ok')+' آخر تحديث منزّل':'أكو تحديث جديد للتطبيق'}</h3>${url?`<p style="margin:0 0 6px">عنوان التطبيق: <a href="${url}" target="_blank" rel="noopener" dir="ltr">${esc(url)}</a></p>`:''}
    <p class="muted" style="margin:0 0 8px">آخر نشر للبوابة: ${SNAP&&SNAP.at?fmtD(SNAP.at.slice(0,10)):'—'} · آخر تنزيل لملف التحديث: ${G.at?fmtD(G.at.slice(0,10)):'—'}</p>
-   ${!G.at?`<ol style="margin:0 0 8px;padding-inline-start:20px;line-height:1.9"><li>اضغط «تنزيل كل ملفات التطبيق» وفك ضغط الملف (بالآيفون: اضغط على الملف بتطبيق الملفات).</li><li>افتح صفحة الرفع${repoURL?` (<a href="${repoURL}" target="_blank" rel="noopener">هذا الرابط</a>)`:' بالمستودع: Add file ← Upload files'}.</li><li>اختار الملفات الخمسة كلها (index.html و sw.js و manifest.webmanifest و icon-192.png و icon-512.png) واضغط Commit changes.</li><li>بعد دقيقة افتح عنوان التطبيق وثبّته.</li></ol>`
-    :`<ol style="margin:0 0 8px;padding-inline-start:20px;line-height:1.9"><li>اضغط «تنزيل ملف التحديث» (ملف واحد: index.html).</li><li>افتح صفحة الرفع${repoURL?` (<a href="${repoURL}" target="_blank" rel="noopener">هذا الرابط</a>)`:''} واختاره واضغط Commit changes. يستبدل القديم تلقائياً.</li></ol>`}
-   <div class="tools"><button class="btn ${G.at?'':'ghost'}" onclick="ghIndex()">${ic('upload')} تنزيل ملف التحديث (index.html)</button><button class="btn ${G.at?'ghost':''}" onclick="ghZipAll()">${ic('archive')} تنزيل كل ملفات التطبيق (أول مرة)</button></div></div>
+   ${!G.at?`<ol style="margin:0 0 8px;padding-inline-start:20px;line-height:1.9"><li>اضغط «تنزيل ملفات التطبيق الخمسة» ووافق على حفظ كل ملف (تنحفظ بتطبيق الملفات ← التنزيلات).</li><li>افتح المستودع${repoURL?` (<a href="${repoURL}" target="_blank" rel="noopener">هذا الرابط</a>)`:''} واضغط Add file ← Upload files.</li><li>اختار الملفات الخمسة كلها (index.html و sw.js و manifest.webmanifest و icon-192.png و icon-512.png) واضغط Commit changes.</li><li>بعد دقيقة افتح عنوان التطبيق وثبّته.</li></ol>`
+    :`<ol style="margin:0 0 8px;padding-inline-start:20px;line-height:1.9"><li>اضغط «تنزيل ملف التحديث» (ملف واحد: index.html).</li><li>افتح المستودع${repoURL?` (<a href="${repoURL}" target="_blank" rel="noopener">هذا الرابط</a>)`:''} ← Add file ← Upload files، اختاره واضغط Commit changes. يستبدل القديم تلقائياً.</li></ol>`}
+   <div class="tools"><button class="btn ${G.at?'':'ghost'}" onclick="ghIndex()">${ic('upload')} تنزيل ملف التحديث (index.html)</button><button class="btn ${G.at?'ghost':''}" onclick="ghFiles()">${ic('archive')} تنزيل ملفات التطبيق الخمسة (أول مرة)</button><button class="btn ghost sm" onclick="ghZipAll()">ملف مضغوط (للحاسبة)</button></div></div>
   <div class="box"><h3>بيانات الموقع</h3><div class="fgrid"><label>اسم المستخدم في GitHub<input id="gh_u" dir="ltr" value="${esc(G.user||'')}" placeholder="sinai-school"></label><label>اسم المستودع<input id="gh_r" dir="ltr" value="${esc(G.repo||'')}" placeholder="${esc((G.user||'sinai-school')+'.github.io')}"></label></div>
    <div class="tools"><button class="btn" onclick="ghSave()">حفظ</button></div></div>
   <div class="box"><h3>شلون يوصل التحديث للمدرسين</h3><p style="margin:0">كل ما تغيّر شي بالنظام وتنشر البوابة، هنا يطلعلك «أكو تحديث جديد». تنزّل ملف التحديث وترفعه (دقيقة وحدة)، والمدرسين والطلاب يشوفونه أول ما يفتحون التطبيق وهم متصلين. بدون إنترنت يشتغل بآخر نسخة نزلت عندهم.</p></div>`};
@@ -2410,5 +2412,3 @@ function render(){if(!$('app')||$('app').hidden)return;PEND=0;$('nav').innerHTML
   $('ptitle').textContent=TITLE[cur]||'';$('main').innerHTML=V[cur]();bindDrop();bindGrid()}
 boot();
 </script>
-
-</body></html>
