@@ -615,7 +615,7 @@ const upd8=()=>{const d=new Date();return toAr(d.getFullYear()+'/'+(d.getMonth()
 function mGrid(S,title,sheet){const FN=firstNames(),W=4+3*S.length,base=PAPER=='A3'?1.42:1,fs=+(Math.min(7.4,Math.max(6.2,170/W))*base).toFixed(1);
   const rows=[[{v:'جـدول الـدروس الأسـبـوعـي '+toAr(YR)+' / تحـديـث '+upd8()+(title?'   —   '+title:''),cs:W,bg:C.title,b:1,fz:1.45}],
     [{v:'الأيام',rs:2,bg:C.side,b:1},{v:'الوقت',cs:2,bg:C.side,b:1},{v:'الدرس',rs:2,bg:C.side,b:1},...S.map(([n])=>({v:n,cs:3,bg:C.sec,b:1,fz:1.1}))],
-    [{v:'من',bg:C.side,b:1},{v:'الى',bg:C.side,b:1},...S.flatMap(()=>['المادة','المعلم','القاعة'].map(v=>({v,bg:C.sub,b:1})))]];
+    [{v:'من',bg:C.side,b:1},{v:'الى',bg:C.side,b:1},...S.flatMap(()=>['المادة','المدرس','القاعة'].map(v=>({v,bg:C.sub,b:1})))]];
   DAYS.forEach((dn,d)=>{if(d)rows.push([{v:'',cs:W,bg:C.sep,sep:1}]);for(let p=0;p<PER[d];p++){const r=[];if(p==0)r.push({v:dn,rs:PER[d],bg:C.side,b:1,fz:1.5});const t=(TMS[d]||[])[p]||['',''];
     r.push({v:toAr(t[0]),bg:C.side},{v:toAr(t[1]),bg:C.side},{v:toAr(p+1),bg:C.side,b:1});
     S.forEach(([,s])=>{const u=g[s][d][p];if(u<0){r.push('','','');return}const bad=!!conf(s,d,p);r.push({v:subShort(U[u].sj),b:U[u].sj=='إنكليزي',red:bad},{v:FN[U[u].t],red:bad},toAr(roomShort(R[s][d][p])))});rows.push(r)}});
@@ -647,18 +647,18 @@ const V={};
 V.t=()=>{const nG=GRD().length;if(TM=='s'&&TI>=NS||TM=='t'&&TI>=T.length||TM=='g'&&TI>=nG)TI=0;if(TM!='s')EDIT=0;
   const has=g.length&&!STALE,c=TT&&TT.c,gr=GRD()[TI];
   CURX=has?{name:TM=='s'?'جدول '+SN[TI]:TM=='t'?'جدول '+T[TI]:'الجدول العام الصف '+gr,sheets:()=>[TM=='s'?mSec(TI):TM=='t'?mTea(TI):mGrade(gr)]}:null;
-  const st=GENING?'<span class="stat warn">جارٍ توليد الجدول… (حتى 15 ثانية)</span>':!READY.tt||!READY.cfg?'<span class="stat">جارٍ التحميل…</span>':STALE?'<span class="stat warn">تغيّرت بيانات المعلمين أو الشعب، ولّد جدولاً جديداً</span>':!g.length?'<span class="stat warn">لا يوجد جدول بعد</span>':c?`<span class="stat bad">${c} تعارض ظاهر بالأحمر</span>`:`<span class="stat ok">${ic('ok')} بدون تعارض، مع رغبات المعلمين والقاعات</span>`;
+  const st=GENING?'<span class="stat warn">جارٍ توليد الجدول… (حتى 15 ثانية)</span>':!READY.tt||!READY.cfg?'<span class="stat">جارٍ التحميل…</span>':STALE?'<span class="stat warn">تغيّرت بيانات المدرسين أو الشعب، ولّد جدولاً جديداً</span>':!g.length?'<span class="stat warn">لا يوجد جدول بعد</span>':c?`<span class="stat bad">${c} تعارض ظاهر بالأحمر</span>`:`<span class="stat ok">${ic('ok')} بدون تعارض، مع رغبات المدرسين والقاعات</span>`;
   const sel=TM=='s'?optsI(SN,TI):TM=='t'?optsI(T,TI,(n,i)=>n+' — '+hrs(i)+' حصة'):optsI(GRD(),TI,n=>'الصف '+n+' — العلمي والأدبي');
   const grid=!has?'':TM=='s'?secTT(TI,EDIT):TM=='t'?teaTT(TI):modelHTML(mGrade(gr),'tt7');
   return `<div class="vh"><h2>الجدول الأسبوعي</h2>${st}</div>
   <div class="tools"><button class="btn" onclick="gen()" ${GENING?'disabled':''}>${ic('bolt')} توليد جدول جديد</button>
-  <div class="seg"><button class="${TM=='s'?'on':''}" onclick="TM='s';TI=0;SEL=null;render()">الشعب</button><button class="${TM=='g'?'on':''}" onclick="TM='g';TI=0;render()">الصف كاملاً</button><button class="${TM=='t'?'on':''}" onclick="TM='t';TI=0;render()">المعلمون</button></div>
+  <div class="seg"><button class="${TM=='s'?'on':''}" onclick="TM='s';TI=0;SEL=null;render()">الشعب</button><button class="${TM=='g'?'on':''}" onclick="TM='g';TI=0;render()">الصف كاملاً</button><button class="${TM=='t'?'on':''}" onclick="TM='t';TI=0;render()">المدرسون</button></div>
   <select id="tsel" onchange="TI=+this.value;SEL=null;render()">${sel}</select></div>
   <div class="tools"><span class="sub">ورق الطباعة (أفقي):</span><div class="seg"><button class="${PAPER=='A4'?'on':''}" onclick="setPaper('A4')">A4</button><button class="${PAPER=='A3'?'on':''}" onclick="setPaper('A3')">A3</button></div><button class="btn ghost sm" onclick="TEDIT=TEDIT?0:1;HOLD=TEDIT;render()">${ic('clock')} أوقات الحصص</button></div>${timesBox()}
   ${has&&TM=='s'?`<div class="tools"><button class="btn ${EDIT?'':'ghost'} sm" onclick="EDIT=EDIT?0:1;SEL=null;render()">${EDIT?ic('ok')+' إنهاء التعديل':ic('edit')+' تعديل الجدول يدوياً'}</button>${EDIT&&UNDO&&UNDO.s==TI?`<button class="btn ghost sm" onclick="undoSwap()">${ic('undo')} تراجع عن آخر تبديل</button>`:''}${EDIT?`<span class="sub">${SEL?'اضغط المكان الذي تريد نقل الحصة إليه (فارغ أو حصة أخرى للتبديل)':'اضغط على حصة لاختيارها'}</span>`:''}</div>`:''}
   ${has?`<div class="tw">${grid}</div>`+verifyBox(1):emptyState(STALE?'الجدول الحالي لا يطابق البيانات':'لم يُولَّد الجدول بعد','اضغط «توليد جدول جديد» ليُوزَّع الأساتذة على الحصص والقاعات تلقائياً.')}
-  ${has?expBar()+fmtBtns('كل الصفوف، كل صف بصفحة','expTT(\'g\',\'FMT\')')+fmtBtns('كل الشعب','expTT(\'s\',\'FMT\')')+fmtBtns('كل المعلمين','expTT(\'t\',\'FMT\')'):''}`};
-function expTT(k,fmt){if(!g.length||STALE)return;exportSheets(fmt,k=='g'?'الجدول العام لكل الصفوف':k=='s'?'جداول الشعب':'جداول المعلمين',k=='g'?GRD().map(mGrade):k=='s'?SN.map((_,i)=>mSec(i)):T.map((_,i)=>mTea(i)))}
+  ${has?expBar()+fmtBtns('كل الصفوف، كل صف بصفحة','expTT(\'g\',\'FMT\')')+fmtBtns('كل الشعب','expTT(\'s\',\'FMT\')')+fmtBtns('كل المدرسين','expTT(\'t\',\'FMT\')'):''}`};
+function expTT(k,fmt){if(!g.length||STALE)return;exportSheets(fmt,k=='g'?'الجدول العام لكل الصفوف':k=='s'?'جداول الشعب':'جداول المدرسين',k=='g'?GRD().map(mGrade):k=='s'?SN.map((_,i)=>mSec(i)):T.map((_,i)=>mTea(i)))}
 
 function setPaper(p){PAPER=p;try{localStorage.setItem('paper',p)}catch(e){}render()}
 /* ---------- icons ---------- */
@@ -692,8 +692,8 @@ function verifyTT(){const out={ok:true,items:[],bad:[]};if(!g.length||STALE)retu
   const tot=need.reduce((a,b)=>a+b,0),pl=got.reduce((a,b)=>a+b,0);
   const add=(ok,txt,list)=>{(ok?out.items:out.bad).push({ok,txt,list:list||[]});if(!ok)out.ok=false};
   add(!miss.length,miss.length?`حصص غير موزعة أو زائدة: ${miss.length}`:`كل الحصص موزعة: ${toAr(pl)} من ${toAr(tot)}`,miss.map(([u,k])=>`${u.secs.map(x=>SN[x]).join(' + ')} — ${u.sj} (${T[u.t]}): ${k>0?'ناقص '+k:'زائد '+(-k)}`));
-  add(!clashT.length,clashT.length?`تعارض معلمين: ${clashT.length}`:'لا يوجد معلم في مكانين بنفس الوقت',clashT);
-  add(!blk.length,blk.length?`مخالفة لأوقات عدم توفر المعلمين: ${blk.length}`:'كل رغبات وأيام تفرغ المعلمين محترمة',blk);
+  add(!clashT.length,clashT.length?`تعارض مدرسين: ${clashT.length}`:'لا يوجد مدرس في مكانين بنفس الوقت',clashT);
+  add(!blk.length,blk.length?`مخالفة لأوقات عدم توفر المدرسين: ${blk.length}`:'كل رغبات وأيام تفرغ المدرسين محترمة',blk);
   add(!lab.length&&!yard.length,lab.length||yard.length?'المختبر أو الساحة محجوزة لأكثر من درس بنفس الوقت':'المختبر والساحة لا يتداخل فيهما درسان',[...lab.map(x=>'المختبر: '+x),...yard.map(x=>'الساحة: '+x)]);
   add(!room.length&&!noroom,room.length||noroom?`قاعات متداخلة أو حصص بلا قاعة: ${room.length+noroom}`:'لكل حصة قاعة ولا تتداخل القاعات',room);
   return out}
@@ -712,8 +712,8 @@ V.h=()=>{CURX=null;const tot=U.reduce((a,u)=>a+u.h,0),ab=Object.values(AT[TD]||{
     <p>${wd<=4?'اليوم '+DAYS[wd]+' — دوام رسمي.':'اليوم عطلة نهاية الأسبوع.'} كل ما تحتاجه لإدارة إعدادية سيناء للبنين في مكان واحد.</p>
     <div class="hs"><span class="chip">${ic('cal')} ${GENING?'جارٍ توليد الجدول':STALE?'الجدول يحتاج توليد':g.length?(TT&&TT.c?'في الجدول '+toAr(TT.c)+' تعارض':'الجدول سليم'):'لم يُولَّد الجدول'}</span><span class="chip">${ic('cal')} ${toAr(tot)} حصة أسبوعياً</span></div></section>
   <div class="tiles">${tile('users',STA().length,'طالب')}${tile('teacher',T.length,'مدرس')}${tile('layers',NS,'شعبة')}${tile('alert',ab,'غائب اليوم',ab>0)}</div>
-  <p class="sect">التدريس والطلبة</p><div class="mods">${mod('t','cal','الجدول الأسبوعي','توليد آلي، تعديل يدوي، وطباعة A4 وA3')}${mod('x','swap','جدول الاحتياط','حصص المعلم الغائب ومن يغطيها')}${mod('p','users','الطلاب','إضافة يدوية أو من ملف Word وPDF وExcel')}${mod('a','check','الغياب اليومي','حاضر، غائب، مجاز لكل شعبة')}${mod('g','pen','إدخال الدرجات','الفصلان ونصف السنة والنهائي والإكمال')}${mod('r','award','النتائج والبطاقات','بطاقة الدرجات الرسمية وكشوف النتائج')}${mod('n','chart','نسب النجاح','النموذج الرسمي للنهائي ونصف السنة')}</div>
-  <p class="sect">الإدارة</p><div class="mods">${mod('m','teacher','المعلمون','الحصص والمواد وأوقات عدم التوفر')}${mod('c','layers','الشعب والمواد','الشعب والمواد المعتمدة لكل صف')}${OWN?mod('f','org','الملاك التدريسي والإداري','الإحصائيات، داخل وخارج قوى العمل')+mod('k','idc','جرد الملاك','الملفات الكاملة، الخدمة والتقاعد')+mod('q','book','القيد العام','الأسماء وأرقام الصفحات وصور السجل')+mod('y','inbox','الصادر والوارد','سجل الكتب مع الجهة والتاريخ والصور')+mod('z','arch','الأرشيف','السجلات الوسطية وبوردات الدرجات الوزارية')+mod('o','grid','جدول المديرية','جدول توزيع الحصص الرسمي')+mod('l','mail','الكتب الرسمية','إنشاء وأرشفة الكتب بالقالب')+mod('w','globe','بوابة المدرسين والطلاب','نشر الجداول والأسماء'):mod('b','archive','النسخ الاحتياطي','تنزيل واسترجاع كل البيانات')}</div>
+  <p class="sect">التدريس والطلبة</p><div class="mods">${mod('t','cal','الجدول الأسبوعي','توليد آلي، تعديل يدوي، وطباعة A4 وA3')}${mod('x','swap','جدول الاحتياط','حصص المدرس الغائب ومن يغطيها')}${mod('p','users','الطلاب','إضافة يدوية أو من ملف Word وPDF وExcel')}${mod('a','check','الغياب اليومي','حاضر، غائب، مجاز لكل شعبة')}${mod('g','pen','إدخال الدرجات','الفصلان ونصف السنة والنهائي والإكمال')}${mod('r','award','النتائج والبطاقات','بطاقة الدرجات الرسمية وكشوف النتائج')}${mod('n','chart','نسب النجاح','النموذج الرسمي للنهائي ونصف السنة')}</div>
+  <p class="sect">الإدارة</p><div class="mods">${mod('m','teacher','المدرسون','الحصص والمواد وأوقات عدم التوفر')}${mod('c','layers','الشعب والمواد','الشعب والمواد المعتمدة لكل صف')}${OWN?mod('f','org','الملاك التدريسي والإداري','الإحصائيات، داخل وخارج قوى العمل')+mod('k','idc','جرد الملاك','الملفات الكاملة، الخدمة والتقاعد')+mod('q','book','القيد العام','الأسماء وأرقام الصفحات وصور السجل')+mod('y','inbox','الصادر والوارد','سجل الكتب مع الجهة والتاريخ والصور')+mod('z','arch','الأرشيف','السجلات الوسطية وبوردات الدرجات الوزارية')+mod('o','grid','جدول المديرية','جدول توزيع الحصص الرسمي')+mod('l','mail','الكتب الرسمية','إنشاء وأرشفة الكتب بالقالب')+mod('w','globe','بوابة المدرسين والطلاب','نشر الجداول والأسماء'):mod('b','archive','النسخ الاحتياطي','تنزيل واسترجاع كل البيانات')}</div>
   <div class="two">${verifyBox()||`<div class="box"><h3>الجدول</h3><p class="muted">${READY.tt?'لم يُولَّد بعد.':'جارٍ التحميل…'}</p></div>`}
    <div class="box"><h3>تجاوزوا ١٠ أيام غياب</h3>${hi.length?`<div class="tw"><table><tr><th class="l">الطالب</th><th>الشعبة</th><th>الغياب</th></tr>${hi.slice(0,8).map(([s,n])=>`<tr><td class="l">${esc(s.n)}</td><td>${esc(s.s)}</td><td class="red">${toAr(n)}</td></tr>`).join('')}</table></div>`:'<p class="muted">لا يوجد.</p>'}</div></div>
   ${schoolInfoHTML()}<div class="box"><h3>الإدارة الحالية</h3>
@@ -731,11 +731,11 @@ V.x=()=>{if(XT>=T.length)XT=0;const wd=new Date(XD+'T12:00').getDay(),d=wd<=4?wd
   if(!has)body=emptyState('لا يوجد جدول صالح','ولّد الجدول أولاً من قسم «الجدول».');
   else if(d<0)body=emptyState('هذا اليوم عطلة','اختر يوماً من الأحد إلى الخميس.');
   else{const rows=subRows(d);
-    if(!rows.length)body=emptyState('لا توجد حصص','هذا المعلم ليس لديه حصص في هذا اليوم.');
+    if(!rows.length)body=emptyState('لا توجد حصص','هذا المدرس ليس لديه حصص في هذا اليوم.');
     else{const pickT=(p,s)=>{const k=XD+'|'+XT+'|'+p+'|'+s,F=freeFor(d,p);if(XP[k]==null||!F.some(f=>f[0]==XP[k]))XP[k]=F.length?F[0][0]:-1;return[k,F]};
-      body=`<div class="tw"><table><tr><th>الحصة</th><th>الشعبة</th><th>المادة</th><th>القاعة</th><th class="l">المعلم البديل</th></tr>${rows.map(([p,s,u])=>{const[k,F]=pickT(p,s);return `<tr><td>${p+1}</td><td>${esc(U[u].secs.map(x=>SN[x]).join(' + '))}</td><td>${esc(U[u].sj)}</td><td>${esc(R[s][d][p])}</td><td class="l"><select onchange="XP['${k}']=+this.value">${F.map(([t,c])=>`<option value="${t}" ${t==XP[k]?'selected':''}>${esc(SH[t])} — ${c} حصص اليوم</option>`).join('')||'<option>لا يوجد متفرغ</option>'}</select></td></tr>`}).join('')}</table></div><p class="muted">المقترح أولاً هو المتواجد في المدرسة ذلك اليوم وحصصه أقل.</p>`;
-      CURX={name:'احتياط '+XD,body:()=>sheetHead('جدول الاحتياط — '+XD+' ('+DAYS[d]+')','المعلم الغائب: '+esc(T[XT]))+`<table><tr><th>الحصة</th><th>الشعبة</th><th>المادة</th><th>القاعة</th><th>المعلم البديل</th><th>التوقيع</th></tr>${rows.map(([p,s,u])=>{const k=XD+'|'+XT+'|'+p+'|'+s,t=XP[k];return `<tr><td>${p+1}</td><td>${esc(U[u].secs.map(x=>SN[x]).join(' + '))}</td><td>${esc(U[u].sj)}</td><td>${esc(R[s][d][p])}</td><td>${t>=0?esc(T[t]):''}</td><td style="width:22%"></td></tr>`}).join('')}</table>`+sign('توقيع معاون المدرسة')}}}
-  return `<div class="vh"><h2>جدول الاحتياط</h2><span class="sub">حصص المعلم الغائب ومن يغطيها</span></div>
+      body=`<div class="tw"><table><tr><th>الحصة</th><th>الشعبة</th><th>المادة</th><th>القاعة</th><th class="l">المدرس البديل</th></tr>${rows.map(([p,s,u])=>{const[k,F]=pickT(p,s);return `<tr><td>${p+1}</td><td>${esc(U[u].secs.map(x=>SN[x]).join(' + '))}</td><td>${esc(U[u].sj)}</td><td>${esc(R[s][d][p])}</td><td class="l"><select onchange="XP['${k}']=+this.value">${F.map(([t,c])=>`<option value="${t}" ${t==XP[k]?'selected':''}>${esc(SH[t])} — ${c} حصص اليوم</option>`).join('')||'<option>لا يوجد متفرغ</option>'}</select></td></tr>`}).join('')}</table></div><p class="muted">المقترح أولاً هو المتواجد في المدرسة ذلك اليوم وحصصه أقل.</p>`;
+      CURX={name:'احتياط '+XD,body:()=>sheetHead('جدول الاحتياط — '+XD+' ('+DAYS[d]+')','المدرس الغائب: '+esc(T[XT]))+`<table><tr><th>الحصة</th><th>الشعبة</th><th>المادة</th><th>القاعة</th><th>المدرس البديل</th><th>التوقيع</th></tr>${rows.map(([p,s,u])=>{const k=XD+'|'+XT+'|'+p+'|'+s,t=XP[k];return `<tr><td>${p+1}</td><td>${esc(U[u].secs.map(x=>SN[x]).join(' + '))}</td><td>${esc(U[u].sj)}</td><td>${esc(R[s][d][p])}</td><td>${t>=0?esc(T[t]):''}</td><td style="width:22%"></td></tr>`}).join('')}</table>`+sign('توقيع معاون المدرسة')}}}
+  return `<div class="vh"><h2>جدول الاحتياط</h2><span class="sub">حصص المدرس الغائب ومن يغطيها</span></div>
   <div class="tools"><input type="date" id="xd" value="${XD}" onchange="XD=this.value||TD;render()"><select id="xt" onchange="XT=+this.value;render()">${optsI(T,XT)}</select></div>${body}${CURX?expBar():''}`};
 
 /* ---------- attendance ---------- */
@@ -903,11 +903,11 @@ function impSummary(){if(!IMP)return'';const L=parseLines(IMP.text),c={};let non
 
 /* ---------- teachers ---------- */
 let ED=null;
-const grid=(c,bl)=>`<div class="tw"><table class="bl"><tr><th></th>${[1,2,3,4,5,6,7].map(p=>`<th>${p}</th>`).join('')}</tr>${DAYS.map((d,x)=>`<tr><th>${d}</th>${[0,1,2,3,4,5,6].map(p=>`<td><input type="checkbox" class="${c}" id="${c}_${x}_${p}" value="${x},${p}" aria-label="${d} الحصة ${p+1}" ${bl.includes(x+','+p)?'checked':''}></td>`).join('')}</tr>`).join('')}</table></div><p class="muted">✓ = حصة لا يرغب بها المعلم أو يكون متفرغاً فيها. علّم اليوم كله للتفرغ التام.</p>`;
+const grid=(c,bl)=>`<div class="tw"><table class="bl"><tr><th></th>${[1,2,3,4,5,6,7].map(p=>`<th>${p}</th>`).join('')}</tr>${DAYS.map((d,x)=>`<tr><th>${d}</th>${[0,1,2,3,4,5,6].map(p=>`<td><input type="checkbox" class="${c}" id="${c}_${x}_${p}" value="${x},${p}" aria-label="${d} الحصة ${p+1}" ${bl.includes(x+','+p)?'checked':''}></td>`).join('')}</tr>`).join('')}</table></div><p class="muted">✓ = حصة لا يرغب بها المدرس أو يكون متفرغاً فيها. علّم اليوم كله للتفرغ التام.</p>`;
 const ck=c=>[...document.querySelectorAll('.'+c+':checked')].map(x=>x.value);
 function dirty(msg){build();applyTT();P.cfg();HOLD=0;render();if(msg)toast(msg)}
 V.m=()=>{CURX=null;if(ED!=null)return edView(ED);
-  return `<div class="vh"><h2>المعلمون</h2><span class="sub">${T.length} مدرس — ${U.reduce((a,u)=>a+u.h,0)} حصة</span></div>
+  return `<div class="vh"><h2>المدرسون</h2><span class="sub">${T.length} مدرس — ${U.reduce((a,u)=>a+u.h,0)} حصة</span></div>
   <div class="tw"><table><tr><th class="l">المدرس</th><th>المادة</th><th>الحصص</th><th>قيود</th><th></th></tr>${T.map((n,i)=>{const m=META[n];return `<tr><td class="l">${esc(n)}</td><td>${[...new Set(U.filter(u=>u.t==i).map(u=>u.sj))].join('، ')}</td><td>${hrs(i)}</td><td>${m&&m.bl.length?`<span class="chip">${m.bl.length} حصة غير متاحة</span>`:''}</td><td style="white-space:nowrap"><button class="btn ghost sm" onclick="ED=${i};HOLD=1;render()">تعديل</button> <button class="btn danger sm" onclick="ask(this,()=>delT(${i}))">حذف</button></td></tr>`}).join('')}</table></div>
   <div class="box"><h3>إضافة مدرس أو مادة لمدرس موجود</h3><div class="tools"><input id="tn" placeholder="اسم المدرس" list="tl"><datalist id="tl">${T.map(n=>`<option>${esc(n)}</option>`).join('')}</datalist><input id="ts" placeholder="المادة" list="sl"><datalist id="sl">${subs().map(s=>`<option>${esc(s)}</option>`).join('')}</datalist><input id="th" type="number" min="1" max="10" value="2" style="flex:0 0 90px" aria-label="حصص لكل شعبة"><span class="sub">حصة لكل شعبة</span><label class="chip"><input type="checkbox" id="tjoin"> حصة مشتركة: الشعب المختارة تأخذ الدرس سوية</label></div>
   <p class="muted">الشعب:</p><div class="tools">${SN.map((n,i)=>`<label class="chip"><input type="checkbox" class="tsec" id="tsec_${i}" value="${i}"> ${esc(n)}</label>`).join('')}</div>${grid('ob',[])}<div class="tools"><button class="btn" onclick="addT()">إضافة</button></div></div>`};
@@ -926,7 +926,7 @@ function svT(i){if(guard())return;const o=T[i],n=$('en').value.trim()||o;documen
 /* ---------- sections / subjects ---------- */
 V.c=()=>{CURX=null;return `<div class="vh"><h2>الصفوف والشعب</h2><span class="sub">35 خانة أسبوعياً لكل شعبة</span></div>
   <div class="tw"><table><tr><th class="l">الشعبة</th><th>الطلاب</th><th>الحصص</th><th>فارغة</th><th></th></tr>${SN.map((n,s)=>{const x=U.filter(u=>u.secs.includes(s)).reduce((a,u)=>a+u.h,0);return `<tr><td class="l">${esc(n)}</td><td>${STA().filter(t=>t.s==n).length}</td><td>${x}</td><td class="${x>35?'red':''}">${35-x}</td><td><button class="btn danger sm" onclick="ask(this,()=>delSec(${s}))">حذف</button></td></tr>`}).join('')}</table></div>
-  <div class="box"><h3>إضافة شعبة</h3><div class="tools"><input id="nsn" placeholder="مثال: الرابع العلمي و"><button class="btn" onclick="addSec()">إضافة</button></div><p class="muted">بعد الإضافة أسند لها المدرسين من قسم «المعلمون» ثم ولّد الجدول.</p></div>
+  <div class="box"><h3>إضافة شعبة</h3><div class="tools"><input id="nsn" placeholder="مثال: الرابع العلمي و"><button class="btn" onclick="addSec()">إضافة</button></div><p class="muted">بعد الإضافة أسند لها المدرسين من قسم «المدرسون» ثم ولّد الجدول.</p></div>
   <div class="vh"><h2>المواد المعتمدة لكل صف</h2><span class="sub">تظهر في إدخال الدرجات وبطاقة الدرجات بهذا الترتيب</span></div>
   ${groups().map((gn,gi)=>{const cur=curOf(gn),all=ordSort([...new Set([...ORD,...subs(),...cur])]);return `<div class="box"><h3>${esc(gn)}</h3><div class="tools">${all.map((sj,k)=>`<label class="chip"><input type="checkbox" class="cur${gi}" id="cur${gi}_${k}" value="${esc(sj)}" ${cur.includes(sj)?'checked':''}> ${esc(fullN(sj))}</label>`).join('')}</div><div class="tools"><button class="btn sm" onclick="saveCur(${gi})">حفظ مواد ${esc(gn)}</button>${CUR[gn]?`<button class="btn ghost sm" onclick="resetCur(${gi})">رجوع للمواد حسب توزيع المدرسين</button>`:''}</div></div>`}).join('')}`};
 V.c0=V.c;V.c=()=>V.c0()+`<div class="vh"><h2>توزيع المواد</h2><span class="sub">${subs().length} مادة</span></div>`+V.j().replace(/^<div class="vh">.*?<\/div>/,'');
@@ -1213,7 +1213,7 @@ V.o=()=>{if(!OWN)return emptyState('هذا القسم خاص بمالك النظ
   let body='';
   if(OTAB=='m'){const R=oRows();body=`<div class="box"><h3>رأس الجدول</h3><div class="fgrid">${[['loc','موقع المدرسة'],['zone','اسم القاطع والرمز'],['adm','الإدارة'],['dir','المديرية'],['title','عنوان الجدول'],['eff','يُعمل به اعتباراً من']].map(([k,l])=>`<label>${l}<input id="oh_${k}" value="${esc(H[k])}" onchange="oSave('hdr.${k}',this.value)"></label>`).join('')}</div></div>
     ${!g.length?'':''}<div class="tw">${modelHTML(mOff(),'tt7')}</div>
-    <div class="box"><h3>النصاب والملاحظات</h3><p class="muted">الحصص تُؤخذ تلقائياً من «المعلمون». هنا تكتب النصاب النظامي، والملاحظة التي تظهر مكان الحصص لمن ليس لديه حصص (مثل المرشد التربوي).</p>
+    <div class="box"><h3>النصاب والملاحظات</h3><p class="muted">الحصص تُؤخذ تلقائياً من «المدرسون». هنا تكتب النصاب النظامي، والملاحظة التي تظهر مكان الحصص لمن ليس لديه حصص (مثل المرشد التربوي).</p>
      <div class="tw"><table><tr><th>ت</th><th class="l">الاسم</th><th>النصاب النظامي</th><th class="l">ملاحظة بدل الحصص</th></tr>${R.map(r=>{const k=nameKey(r.f.name);return `<tr><td>${toAr(r.f.ord||'')}</td><td class="l">${esc(r.f.name)}${r.missing?' <span class="chip bad">غير موجود في جرد الملاك</span>':''}</td><td><input class="gin" style="width:80px" value="${esc((OFF.nis||{})[k]||'')}" onchange="oSave('nis.'+${JSON.stringify(k).replace(/"/g,'&quot;')},this.value);render()"></td><td><input style="width:100%" value="${esc(oNote(r.f))}" onchange="oSave('note.'+${JSON.stringify(k).replace(/"/g,'&quot;')},this.value);render()"></td></tr>`}).join('')}</table></div></div>`}
   else if(OTAB=='s'){body=`<div class="box"><h3>خلاصة الجدول</h3><p class="muted">مجموع الحصص يُحسب تلقائياً. عدد المدرسين محسوب ويمكنك تعديله، والفيض والشاغر تكتبهما.</p><div class="tw"><table><tr><th class="l">الاختصاص</th><th>مجموع الحصص</th><th>عدد المدرسين</th><th>الفيض</th><th>الشاغر</th></tr>${oSumData().map(r=>`<tr><td class="l"><b>${esc(r.k)}</b></td><td>${toAr(r.h)}</td>${['n','f','s'].map(x=>`<td><input class="gin" value="${esc(r[x])}" onchange="oSave('sum.'+${JSON.stringify(r.k).replace(/"/g,'&quot;')}+'.${x}',this.value);render()"></td>`).join('')}</tr>`).join('')}</table></div></div>`}
   else{const B=OFF.bld||OBLD0,SP=OFF.surplus||[];body=`<div class="two"><div class="box"><h3>معلومات البناية</h3><div class="tw"><table>${B.map(([k,v],i)=>`<tr><td><input style="width:100%" value="${esc(k)}" onchange="oKV(${i},0,this.value)"></td><td><input style="width:100%" value="${esc(v)}" onchange="oKV(${i},1,this.value)"></td><td><button class="btn danger sm" onclick="ask(this,()=>oKVdel(${i}))">حذف</button></td></tr>`).join('')}</table></div><div class="tools"><button class="btn ghost sm" onclick="oKVadd()">${ic('plus')} إضافة سطر</button></div></div>
@@ -1824,7 +1824,9 @@ function pTable(D,m,dry){let x=D.x;const {M,W:nc}=matrix(m),fs=m.fs||9,ws=[...(m
   if(hr){D.ensure(hH+(units[0]?sumH(...units[0]):0));drawRows(0,hr-1)}
   for(const[a,b]of units){const h=sumH(a,b);if(!D.room(h)){D.newPage();if(hr)drawRows(0,hr-1)}drawRows(a,b)}}
 async function pSheet(D,m){if(!D.fresh)D.newPage();await pBrand(D,m.brand||stdBrand(m));pInfo(D,m.info);
-  const F0=footOf(m).filter(t=>t!=null),fN=F0.length?Math.max(...F0.map(t=>String(t).split('\n').length)):0,avail=D.B-D.y-(m.note?12:0)*PXM-(fN?5*PXM+fN*12*PTM*PXM*1.7+PXM:0),need=pTable(D,m,1);let mm=m;const sc=k=>({...m,fs:(m.fs||9)*k,drh:m.drh?m.drh*k:m.drh,rh:m.rh?m.rh*k:m.rh});if(need>avail){const r=avail/need;if(r>=.5||m.fit1){let k=r*.99;mm=sc(k);while(k>.45&&pTable(D,mm,1)>avail){k*=.96;mm=sc(k)}}}else if(m.grow&&need<avail*.95){let lo=1,hi=m.grow;for(let i=0;i<7;i++){const k=(lo+hi)/2;if(pTable(D,sc(k),1)<=avail*.985)lo=k;else hi=k}mm=sc(lo)}pTable(D,mm);
+  const F0=footOf(m).filter(t=>t!=null),fN=F0.length?Math.max(...F0.map(t=>String(t).split('\n').length)):0,avail=D.B-D.y-(m.note?12:0)*PXM-(fN?5*PXM+fN*12*PTM*PXM*1.7+PXM:0),need=pTable(D,m,1);let mm=m;const sc=k=>({...m,fs:(m.fs||9)*k,drh:m.drh?m.drh*k:m.drh,rh:m.rh?m.rh*k:m.rh});if(need>avail){const r=avail/need;if(r>=.5||m.fit1){let k=r*.99;mm=sc(k);while(k>.45&&pTable(D,mm,1)>avail){k*=.96;mm=sc(k)}}}else if(m.grow&&need<avail*.95){let lo=1,hi=m.grow;for(let i=0;i<7;i++){const k=(lo+hi)/2;if(pTable(D,sc(k),1)<=avail*.985)lo=k;else hi=k}mm=sc(lo)}
+  if(m.grow&&pTable(D,mm,1)<avail*.97){const d0=mm.drh||mm.rh||0;let lo=d0,hi=d0+300;for(let i=0;i<14;i++){const k=(lo+hi)/2;if(pTable(D,{...mm,drh:k},1)<=avail*.99)lo=k;else hi=k}if(lo>d0)mm={...mm,drh:lo}}
+  pTable(D,mm);
   if(m.note){D.gap(2);D.text(m.note,{sz:(m.fs||9)*1.3,b:1,al:'c'})}
   const F=footOf(m).filter(t=>t!=null);if(F.length){D.gap(5);const cw=D.W/F.length,lh=12*PTM*PXM*1.7,n=Math.max(...F.map(t=>String(t).split('\n').length));D.ensure(n*lh);const x=D.x;F.forEach((t,i)=>{const a=D.R-cw*(i+1),z=a+cw;x.font=pFont(12,1);x.fillStyle='#000';x.textAlign='center';String(t).split('\n').forEach((ln,k)=>x.fillText(ln,(a+z)/2,D.y+k*lh+lh/2,cw))});D.adv(n*lh)}}
 /* generic HTML (print view) → drawn blocks: headings, tables, paragraphs, images, page breaks */
@@ -2296,7 +2298,7 @@ rooms=function(){const NR=16,TRM=trMap(),FIX=new Set(Object.values(TRM));R=[...A
       if(n){used.add(n);prev[s]=n;seen[s].add(n);R[s][d][p]='قاعة '+n}else if(tk('القاعة الذكية'))R[s][d][p]='القاعة الذكية';else R[s][d][p]='بلا قاعة'}}}};
 function trSet(n,k){if(guard())return;YD.tr={...(ydCfg().tr||{})};if(k)YD.tr[n]=+k;else delete YD.tr[n];if(g.length)rooms();P.cfg();render()}
 function trAdd(){const n=($('tr_n')||{}).value,k=+(($('tr_k')||{}).value||0);if(!n||!k)return toast('اختر المدرس ورقم القاعة','err');trSet(n,k)}
-const trBox=()=>{const m=ydCfg().tr||{};return `<div class="box"><h3>قاعات ثابتة لمدرسين</h3><p class="muted" style="margin:0 0 6px">كل دروس المدرس المحدد تكون بنفس القاعة. باقي الشعب تتبدل قاعاتها حصة بحصة.</p>
+let trBox=()=>{const m=ydCfg().tr||{};return `<div class="box"><h3>قاعات ثابتة لمدرسين</h3><p class="muted" style="margin:0 0 6px">كل دروس المدرس المحدد تكون بنفس القاعة. باقي الشعب تتبدل قاعاتها حصة بحصة.</p>
   <div class="tw"><table><tr><th class="l">المدرس</th><th>القاعة</th><th></th></tr>${Object.keys(m).map(n=>`<tr><td class="l"><b>${esc(n)}</b></td><td>قاعة ${toAr(m[n])}</td><td><button class="btn ghost sm" onclick="trSet('${esc(n).replace(/'/g,"\\'")}',0)">إلغاء</button></td></tr>`).join('')||'<tr><td colspan="3" class="muted">لا يوجد</td></tr>'}</table></div>
   <div class="tools"><select id="tr_n" aria-label="المدرس"><option value="">اختر المدرس</option>${T.map(n=>`<option>${esc(n)}</option>`).join('')}</select><select id="tr_k" aria-label="القاعة">${Array.from({length:16},(_,i)=>`<option value="${i+1}">قاعة ${toAr(i+1)}</option>`).join('')}</select><button class="btn sm" onclick="trAdd()">${ic('plus')} تثبيت</button></div></div>`};
 const _Vt15=V.t;V.t=()=>_Vt15()+(OWN&&TM=='s'?trBox():'');
@@ -2681,6 +2683,75 @@ solve=function(){init();const t0=Date.now(),TL=13000;let T0=3,best=null,bf=1e9,T
     doSwap(S,a,b);const dl=f()-b0;if(dl>0&&Math.random()>Math.exp(-dl/T))doSwap(S,a,b)}
   if(best&&full()>bf)g=best;return clash()};
 
+/* ================= v20: a home room for every teacher (room-mates kept apart), social rooms 7–8, المختبر, effective date ================= */
+const LAB='المختبر',SMART='القاعة الذكية',YARD='الساحة';
+YD0.rm={'سيف محمد إبراهيم عبد الله':1,'سفيان ثاير ودود علي':1,'سارة عبد الجبار محمد علي نوروز':2,'ياسمين جاسب ملك خلف':3,'زينب احمد جواد كاظم':4,'افين موسى إبراهيم حسين':4,
+  'محمد فرمان داود باقر':5,'سرور مظفر محمد كامل مرجان':'ذ','علي عوفي مطر يوسف':6,'هديل هادي كاظم جار الله':9,'خضير عباس قنبر كريم':9,'محمد حازم محمد':10,'علي صباح جاسم عوده':11,
+  'احمد عبد الرزاق حسين حمودي':12,'صلاح حميد فرحان جاسم':12,'مهدي ناجي عباس علي':13,'حسن كاظم عبد الرضا علي':13,'براءة طالب عبد شفي':14,'مصطفى زهير عبد الزهره صخيل':15,
+  'نشوان سلام إسماعيل خضر':15,'منتظر ياسين عميد حسن':16,'وسام علي عيسى محمد':16};
+YD0.soc=[7,8];YD0.eff='2026-10-04';
+const SOCJ=new Set(['تاريخ','جغرافية','اقتصاد','اجتماع','فلسفة','جرائم']);
+const rmName=k=>k=='ذ'?SMART:'قاعة '+k;
+/* teacher index → room key */
+let TRM2=[],TRM2k='';
+function rmMap(){const m=ydCfg().rm||{},key=JSON.stringify(m)+'|'+T.join(',');if(key==TRM2k)return TRM2;const o=new Array(T.length).fill(null);
+  for(const n in m){const i=T.findIndex(x=>x==n||sameName(x,n));if(i>=0&&m[n])o[i]=m[n]}TRM2=o;TRM2k=key;return o}
+const effDate=()=>{const e=ydCfg().eff||'';if(!e)return'';const[y,mo,da]=e.split('-');return toAr(y+'/'+(+mo)+'/'+(+da))};
+/* solver: room-mates should not teach at the same time; social lessons fit the two social rooms */
+const _tc20=tc;let RMQ=[];
+function rmPrep(){const M=rmMap();RMQ=U.map(u=>u.sj=='رياضة'||u.sj=='حاسوب'?null:SOCJ.has(u.sj)?'S':M[u.t])}
+tc=function(d,p){let x=_tc20(d,p);if(RMQ.length!=U.length)return x;const c={},seen=new Set();let so=0;
+  for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);const k=RMQ[u];if(k==null)continue;if(k=='S')so++;else{if(c[k])x+=2;c[k]=1}}
+  const ns=(ydCfg().soc||[]).length;if(so>ns)x+=2*(so-ns);return x};
+clash=function(){let x=0;for(let d=0;d<5;d++)for(let p=0;p<PER[d];p++)x+=_tc20(d,p)/10;return x};
+const _init20=init;init=function(){rmPrep();return _init20()};
+/* room assignment */
+rooms=function(){const M=rmMap(),SOC=(ydCfg().soc||[]).map(Number),own={};M.forEach((k,t)=>{if(k!=null&&k!='ذ')own[k]=(own[k]||0)+U.filter(u=>u.t==t).reduce((a,u)=>a+u.h,0)});
+  R=[...Array(NS)].map(()=>DAYS.map(()=>[]));
+  const spare=[...Array(16)].map((_,i)=>i+1).sort((a,b)=>(own[a]||0)-(own[b]||0));
+  for(let d=0;d<5;d++){const last={};for(let p=0;p<PER[d];p++){const used=new Set(),byU={},put=(s,r)=>{R[s][d][p]=r;used.add(r);byU[g[s][d][p]]=r};
+    const L=[];for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0)continue;if(byU[u]){R[s][d][p]=byU[u];continue}L.push(s)}
+    const pass=(f)=>{for(let i=L.length-1;i>=0;i--){const s=L[i],u=g[s][d][p];if(byU[u]){R[s][d][p]=byU[u];L.splice(i,1);continue}const r=f(U[u],s);if(r&&!used.has(r)){put(s,r);L.splice(i,1)}}};
+    pass(u=>u.sj=='رياضة'?YARD:u.sj=='حاسوب'?LAB:null);
+    pass(u=>u.sj!='رياضة'&&u.sj!='حاسوب'&&!SOCJ.has(u.sj)&&M[u.t]!=null?rmName(M[u.t]):null);
+    for(const k of SOC)pass(u=>SOCJ.has(u.sj)?'قاعة '+k:null);
+    /* everyone else (and anyone whose room is busy): keep the teacher in the same room as his last lesson today when free, else the least-used spare room */
+    pass(u=>{const r=last[u.t];return r&&!used.has(r)?r:null});
+    for(const s of [...L]){const u=g[s][d][p];if(byU[u]){R[s][d][p]=byU[u];continue}let r=null;for(const k of spare){const n='قاعة '+k;if(!used.has(n)){r=n;break}}
+      if(!r&&!used.has(SMART))r=SMART;if(!r&&U[u].sj=='رياضة'&&!used.has(YARD))r=YARD;put(s,r||'بلا قاعة')}
+    for(let s=0;s<NS;s++){const u=g[s][d][p];if(u>=0&&R[s][d][p]&&R[s][d][p]!='بلا قاعة')last[U[u].t]=R[s][d][p]}}}};
+if(typeof g!='undefined'&&g.length)try{rooms()}catch(e){}
+/* owner settings box: a home room for each teacher */
+function rmSet(n,k){if(guard())return;YD.rm={...(ydCfg().rm||{})};if(k)YD.rm[n]=k=='ذ'?'ذ':+k;else delete YD.rm[n];TRM2k='';if(g.length)rooms();P.cfg();render()}
+function rmAdd(){const n=($('rm_n')||{}).value,k=(($('rm_k')||{}).value||'');if(!n||!k)return toast('اختر المدرس والقاعة','err');rmSet(n,k)}
+trBox=function(){const m=ydCfg().rm||{},by={};Object.keys(m).forEach(n=>{(by[m[n]]=by[m[n]]||[]).push(n)});const ks=Object.keys(by).sort((a,b)=>(a=='ذ'?99:+a)-(b=='ذ'?99:+b));
+  return `<div class="box"><h3>قاعات المدرسين</h3><p class="muted" style="margin:0 0 6px">كل مدرس يدرّس بقاعته. المدرسين اللي يشتركون بقاعة يتوزعون بأوقات مختلفة قدر الإمكان، وإذا صادف وقتهم سوية يروح واحد منهم لأقرب قاعة فارغة. الرياضة بالساحة، الحاسوب بالمختبر، والاجتماعيات بالقاعات ${(ydCfg().soc||[]).map(toAr).join(' و ')}. العمل بالجدول من تاريخ ${effDate()}.</p>
+  <div class="tw"><table><tr><th>القاعة</th><th class="l">المدرسون</th></tr>${ks.map(k=>`<tr><td><b>${k=='ذ'?SMART:'قاعة '+toAr(k)}</b></td><td class="l">${by[k].map(n=>`<span class="chip">${esc(n)} <button class="btn ghost sm" onclick="rmSet('${esc(n).replace(/'/g,"\\'")}','')" aria-label="حذف">✕</button></span>`).join(' ')}</td></tr>`).join('')}</table></div>
+  <div class="tools"><select id="rm_n" aria-label="المدرس"><option value="">اختر المدرس</option>${T.map(n=>`<option>${esc(n)}</option>`).join('')}</select><select id="rm_k" aria-label="القاعة">${Array.from({length:16},(_,i)=>`<option value="${i+1}">قاعة ${toAr(i+1)}</option>`).join('')}<option value="ذ">القاعة الذكية</option></select><button class="btn sm" onclick="rmAdd()">${ic('plus')} تثبيت</button></div></div>`};
+/* effective date on screen and on every printed timetable */
+const _Vt20=V.t;V.t=()=>{const h=_Vt20(),e=effDate();return e?h.replace('<h2>الجدول الأسبوعي</h2>',`<h2>الجدول الأسبوعي</h2><span class="chip">يُعمل به من تاريخ ${e}</span>`):h};
+const _mGrid20=mGrid;mGrid=function(...a){const m=_mGrid20(...a),e=effDate();if(e&&m.rows[0]&&m.rows[0][0])m.rows[0][0].v+='   —   يُعمل به من تاريخ '+e;return m};
+const _mTea20=mTea;mTea=function(t){const m=_mTea20(t),e=effDate();if(e)m.sub=(m.sub?m.sub+'   —   ':'')+'يُعمل به من تاريخ '+e;return m};
+/* ---------- PDF / print buttons: print straight away (no file download); a download stays available as a fallback ---------- */
+async function printPages(D,name,blobF){const imgs=await Promise.all(D.pages.map(c=>new Promise(r=>c.toBlob(b=>r(URL.createObjectURL(b)),'image/jpeg',.93))));
+  const W=D.wmm,H=D.hmm,f=document.createElement('iframe');f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0';
+  f.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>@page{size:${W}mm ${H}mm;margin:0}html,body{margin:0;padding:0}img{display:block;width:${W}mm;height:${H}mm;page-break-after:always;break-after:page}img:last-child{page-break-after:auto;break-after:auto}</style></head><body>${imgs.map(u=>`<img src="${u}">`).join('')}</body></html>`;
+  const done=()=>{setTimeout(()=>{f.remove();imgs.forEach(u=>URL.revokeObjectURL(u))},2000)};
+  f.onload=async()=>{try{const d=f.contentDocument;await Promise.all([...d.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));f.contentWindow.addEventListener('afterprint',done);f.contentWindow.focus();f.contentWindow.print();setTimeout(done,120000)}catch(e){console.error(e);done();blobF().then(b=>saveFile(name+'.pdf',b))}};
+  document.body.appendChild(f);prFallback(name,blobF)}
+function prFallback(name,blobF){document.querySelectorAll('.prfb').forEach(x=>x.remove());const b=document.createElement('div');b.className='prfb';
+  b.innerHTML=`<span>${ic('print')} جارٍ فتح نافذة الطباعة…</span><button type="button" class="btn ghost sm">${ic('download')} ما طلعت؟ نزّل الملف</button><button type="button" class="btn ghost sm" aria-label="إغلاق">✕</button>`;
+  const[dl,x]=b.querySelectorAll('button');dl.onclick=async()=>{b.remove();saveFile(name+'.pdf',await blobF())};x.onclick=()=>b.remove();document.body.appendChild(b);setTimeout(()=>b.remove(),15000)}
+pdfRun=async function(name,paper,orient,fill){toast('جارٍ تجهيز الطباعة…');try{await pFonts();const D=new PDoc(paper,orient);await fill(D);await printPages(D,name,()=>pdfBlob(D))}catch(e){console.error(e);toast('تعذّرت الطباعة','err')}};
+/* «طباعة» buttons go through the same direct printing */
+{const _es20=exportSheets;exportSheets=async function(fmt,name,sheets){if(fmt=='html'||fmt=='print'){if(!sheets||!sheets.length)return toast('لا يوجد شيء للطباعة');return pdfSheets(name,sheets)}return _es20(fmt,name,sheets)}}
+{const _ea20=exportAs;exportAs=async function(fmt,name,body,orient,paper){if(fmt=='html'||fmt=='print')return pdfBody(name,body,orient||'landscape',paper||'A4');return _ea20(fmt,name,body,orient,paper)}}
+if(typeof lPdf=='function')lPrint=function(){return lPdf()};
+{const st=document.createElement('style');st.textContent='.prfb{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));z-index:80;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:var(--card,#fff);color:var(--ink,#111);border:1px solid var(--line,#ddd);border-radius:12px;padding:8px 12px;box-shadow:0 6px 24px rgba(0,0,0,.15);font-size:13px;max-width:calc(100vw - 32px)}';document.head.appendChild(st)}
+/* a timetable saved before the home rooms existed is rebuilt once, so room-mates are spread apart */
+{const _ptt=P.tt;P.tt=function(...a){if(TT)TT.rv=2;return _ptt.apply(P,a)}}
+let RG20=0;{const _ap20=applyTT;applyTT=function(){_ap20();if(OWN&&!RG20&&!GENING&&!STALE&&g.length&&TT&&TT.rv!=2){RG20=1;setTimeout(()=>{try{if(!GENING){gen(1);toast('أعيد توليد الجدول حسب قاعات المدرسين')}}catch(e){}},400)}}}
+
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
 function instShow(){const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),and=/Android/.test(ua);
@@ -2697,7 +2768,7 @@ function stuQaid(pg){if(!OWN)return toast('القيد العام متاح لما
 
 /* ---------- router ---------- */
 ICON.idc='M3 5h18v14H3zM8 10.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 16c.5-2 1.7-3 3-3s2.5 1 3 3M14 9h5M14 13h5';ICON.mail='M3 5h18v14H3zM3 6l9 7 9-7';ICON.grid='M3 4h18v16H3zM3 9h18M3 14h18M9 4v16M15 4v16';ICON.globe='M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3';
-const NAVG0=[['',[['h','الرئيسية','home']]],['الجدول',[['t','الجدول الأسبوعي','cal'],['x','جدول الاحتياط','swap'],['yd','مراقبة الساحة','users']]],['الطلبة',[['p','الطلاب','users'],['a','الغياب اليومي','check'],['g','إدخال الدرجات','pen'],['r','النتائج والبطاقات','award'],['n','نسب النجاح','chart'],['s6','استمارة السادس','sheet'],['sw','السجل الوسطي','layers']]],['الإدارة',[['m','المعلمون','teacher'],['c','الشعب والمواد','layers'],['f','الملاك التدريسي والإداري','org',1],['i','السجل الإحصائي','chart',1],['k','جرد الملاك','idc',1],['sal','الرواتب','chart',1],['q','القيد العام','book',1],['y','الصادر والوارد','inbox',1],['z','الأرشيف','arch',1],['o','جدول المديرية','grid',1],['l','الكتب الرسمية','mail',1],['lt','نماذج الكتب','doc',1],['w','بوابة المدرسين والطلاب','globe',1],['app','تطبيق البوابة','upload',1],['b','النسخ الاحتياطي','archive']]]];
+const NAVG0=[['',[['h','الرئيسية','home']]],['الجدول',[['t','الجدول الأسبوعي','cal'],['x','جدول الاحتياط','swap'],['yd','مراقبة الساحة','users']]],['الطلبة',[['p','الطلاب','users'],['a','الغياب اليومي','check'],['g','إدخال الدرجات','pen'],['r','النتائج والبطاقات','award'],['n','نسب النجاح','chart'],['s6','استمارة السادس','sheet'],['sw','السجل الوسطي','layers']]],['الإدارة',[['m','المدرسون','teacher'],['c','الشعب والمواد','layers'],['f','الملاك التدريسي والإداري','org',1],['i','السجل الإحصائي','chart',1],['k','جرد الملاك','idc',1],['sal','الرواتب','chart',1],['q','القيد العام','book',1],['y','الصادر والوارد','inbox',1],['z','الأرشيف','arch',1],['o','جدول المديرية','grid',1],['l','الكتب الرسمية','mail',1],['lt','نماذج الكتب','doc',1],['w','بوابة المدرسين والطلاب','globe',1],['app','تطبيق البوابة','upload',1],['b','النسخ الاحتياطي','archive']]]];
 const navg=()=>NAVG0.map(([gn,L])=>[gn,L.filter(x=>!x[3]||OWN)]);
 const TITLE=Object.fromEntries(NAVG0.flatMap(g0=>g0[1].map(x=>[x[0],x[1]])));
 let cur='h';
