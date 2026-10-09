@@ -1793,8 +1793,8 @@ class PDoc{constructor(paper,orient){const P=PG[paper]||PG.A4;this.wmm=orient=='
   get W(){return(this.wmm-2*this.M)*PXM}get L(){return this.M*PXM}get R(){return(this.wmm-this.M)*PXM}get B(){return(this.hmm-this.M)*PXM}
   room(h){return this.y+h<=this.B}ensure(h){if(!this.room(h)&&!this.fresh)this.newPage()}
   adv(h){this.y+=h;this.fresh=0}
-  text(t,o={}){const x=this.x,sz=o.sz||11;x.font=(o.ff||pFont)(sz,o.b);const lh=sz*PTM*PXM*(o.lh||1.5),x0=o.x0??this.L,x1=o.x1??this.R,L=wrapT(x,t,x1-x0-2);
-    for(const ln of L){this.ensure(lh);x.fillStyle=o.c||'#000';x.textAlign=o.al=='l'?'left':o.al=='c'?'center':'right';const px=o.al=='l'?x0:o.al=='c'?(x0+x1)/2:x1;x.fillText(ln,px,this.y+lh/2,x1-x0);this.adv(lh)}}
+  text(t,o={}){const x=this.x,sz=o.sz||11;x.font=(o.ff||pFont)(sz,o.b);const lh=sz*PTM*PXM*(o.lh||1.5),x0=o.x0??this.L,x1=o.x1??this.R,ind=o.ind||0;let L=wrapT(x,t,x1-x0-2-ind);if(ind&&L.length>1){const r=String(t).trim().slice(L[0].length).trim();L=[L[0],...(r?wrapT(x,r,x1-x0-2):[])]}
+    L.forEach((ln,i)=>{this.ensure(lh);const c=this.x;c.font=(o.ff||pFont)(sz,o.b);c.fillStyle=o.c||'#000';c.textAlign=o.al=='l'?'left':o.al=='c'?'center':'right';const px=o.al=='l'?x0:o.al=='c'?(x0+x1)/2:x1-(i?0:ind);c.fillText(ln,px,this.y+lh/2,x1-x0);this.adv(lh)})}
   gap(mm){this.y+=mm*PXM}}
 async function pBrand(D,b){if(!b)return;let x=D.x;const q=D.W*(b.w||.28),slots=[[b.right,D.R-q,D.R],[b.center,D.L+q,D.R-q],[b.left,D.L,D.L+q]];let H=0;
   const hs=[];for(const[s,a0,z0]of slots){let h=0;if(s){if(s.img)h+=(s.h||16)*PXM+PXM;for(const l of s.lines||[]){x.font=pFont(l.sz||10,l.b);h+=wrapT(x,l.t,z0-a0-4).length*(l.sz||10)*PTM*PXM*1.45}}hs.push(h);H=Math.max(H,h)}
@@ -1863,7 +1863,7 @@ async function pdfBlob(D){const enc=new TextEncoder(),parts=[];let len=0;const o
     obj(iid,'<< /Type /XObject /Subtype /Image /Width '+c.width+' /Height '+c.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jpg.length+' >>\nstream\n',jpg,'\nendstream')}
   const total=3+3*n,xo=len;let xr='xref\n0 '+total+'\n0000000000 65535 f \n';for(let i=1;i<total;i++)xr+=String(offs[i]).padStart(10,'0')+' 00000 n \n';push(xr+'trailer\n<< /Size '+total+' /Root 1 0 R >>\nstartxref\n'+xo+'\n%%EOF');
   return new Blob(parts,{type:'application/pdf'})}
-async function pFonts(){try{await Promise.all(['400 20px "Readex Pro"','700 20px "Readex Pro"','500 20px "Noto Naskh Arabic"','700 20px "Noto Naskh Arabic"'].map(f=>document.fonts.load(f,'عربي')));await document.fonts.ready}catch(e){}}
+async function pFonts(){try{await Promise.all(['400 20px "Readex Pro"','700 20px "Readex Pro"','600 20px "Noto Naskh Arabic"','700 20px "Noto Naskh Arabic"'].map(f=>document.fonts.load(f,'عربي')));await document.fonts.ready}catch(e){}}
 async function pdfRun(name,paper,orient,fill){toast('جارٍ إنشاء ملف PDF…');try{await pFonts();const D=new PDoc(paper,orient);await fill(D);const b=await pdfBlob(D);return saveFile(name+'.pdf',b)}catch(e){console.error(e);toast('تعذّر إنشاء PDF','err')}}
 const pdfSheets=(name,sheets)=>pdfRun(name,sheets[0].paper||'A4',sheets[0].orient||'landscape',async D=>{for(const m of sheets)await pSheet(D,m)});
 const pdfBody=(name,body,orient,paper)=>pdfRun(name,paper||'A4',orient||'portrait',D=>pHtml(D,body));
@@ -2464,7 +2464,11 @@ function tplLeave(L,tn){const ti=T.findIndex(n=>n==tn||sameName(n,tn));if(ti<0||
   const r=tRows(L.tbl);if(r.length<2)return L;r[1]=['المادة والشعبة',...cells];return{...L,tbl:r.map(x=>x.join('|')).join('\n')}}
 let LTPLK=null;
 function ltUse(k){const tp=TPL.find(x=>x.k==k);if(!tp)return;view('l');LTPLK=k;lNew({greet:L_GREET,close:L_CLOSE,sig:L_SIG,toP:'إلى/',...tp.L});scrollTo(0,0)}
+let LFOC='lf_body',LCAR=null;document.addEventListener('focusin',e=>{const t=e.target;if(t&&t.id&&/^lf_(to|to2|subj|body|tbl|after|sig2|note|att|cc)$/.test(t.id))LFOC=t.id},true);document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&a.id==LFOC&&'selectionStart' in a)LCAR=a.selectionStart});
+const hasTok=L=>['to','to2','body','tbl','after','sig2','att','note'].some(k=>/«[^»]+»/.test(L[k]||''));
+function lInsert(L,txt){const k=LFOC.slice(3),v=String(L[k]??'');const p=LCAR!=null&&LCAR<=v.length?LCAR:v.length;const pre=v.slice(0,p),post=v.slice(p);const sp=pre&&!/\s$/.test(pre)?' ':'';L[k]=pre+sp+txt+(post&&!/^\s/.test(post)?' ':'')+post;LCAR=(pre+sp+txt).length;return L}
 function lPick(kind,v){if(!LDRAFT)return;const L=lRead();let o=L;
+  if(!hasTok(L)&&!(TPL.find(x=>x.k==LTPLK)||{}).grades&&!(TPL.find(x=>x.k==LTPLK)||{}).leave){if(kind=='s'){const s=STA().find(x=>x.id==v);if(!s)return;LDRAFT=lInsert(L,'الطالب ('+s.n+') في الصف ('+s.s+')')}else{const f=STF.find(x=>x.id==v);if(!f)return;LDRAFT=lInsert(L,'السيد/ة ('+f.name+')'+(f.spec?' اختصاص ('+f.spec+')':''))}render();toast('أُضيف الاسم إلى «'+({to:'الجهة',body:'نص الكتاب',subj:'الموضوع',after:'النص بعد الجدول'}[LFOC.slice(3)]||'النص')+'»');return}
   if(kind=='s'){const s=STA().find(x=>x.id==v);if(!s)return;const tp=TPL.find(x=>x.k==LTPLK);if(tp&&tp.grades)o=tplGrades(o,s);o=tplFill(o,{s})}
   if(kind=='t'){const f=STF.find(x=>x.id==v)||{name:v,spec:''};const tp=TPL.find(x=>x.k==LTPLK);o=tplFill(o,{t:f});if(tp&&tp.leave)o=tplLeave(o,f.name)}
   LDRAFT=o;render()}
@@ -2498,13 +2502,13 @@ function letterHTML(L){const paras=lLines(L.body).filter(x=>x.trim()),after=lLin
    ${after.map(p=>p.trim()?(isBul(p)?para(p):`<p style="line-height:1.9;font-size:13pt;font-weight:${/:\s*$/.test(p)?700:600};margin:0 0 1mm;text-align:justify">${lP(p)}</p>`):'<div style="height:3mm"></div>').join('')}
    ${L.close?`<p style="text-align:center;font-weight:700;font-size:14pt;margin:7mm 0 0">${esc(L.close)}</p>`:''}
    ${att.length?`<p style="font-weight:700;font-size:12pt;margin:5mm 0 0">المرفقات:</p>${att.map(a=>`<p style="font-size:12pt;margin:0;font-weight:600;padding-right:6mm">- ${esc(a)}</p>`).join('')}`:''}
-   <table style="width:100%;border-collapse:collapse;margin-top:13mm"><tr><td style="border:none;width:55%;vertical-align:top;font-weight:700;font-size:12.5pt;line-height:2.1">${sig2.map(lP).join('<br>')}</td><td style="border:none;width:45%;vertical-align:top;text-align:right;font-weight:700;font-size:13pt;line-height:2.1">${sigL.map(esc).join('<br>')}</td></tr></table>
+   <table style="width:100%;border-collapse:collapse;margin-top:13mm"><tr><td style="border:none;width:70%;vertical-align:top;font-weight:700;font-size:12.5pt;line-height:2.1">${sig2.map(lP).join('<br>')}</td><td style="border:none;width:30%;vertical-align:top;text-align:right;white-space:nowrap;font-weight:700;font-size:13pt;line-height:2.1">${sigL.map(esc).join('<br>')}</td></tr></table>
    ${L.note?`<p style="font-size:11pt;font-weight:700;margin:4mm 0 0">${esc(L.note)}</p>`:''}
    ${cc.length?`<p style="font-weight:700;font-size:11.5pt;margin:5mm 0 0">نسخة منه إلى:</p>${cc.map(c=>`<p style="font-size:11pt;margin:0">– ${esc(c)}</p>`).join('')}`:''}
   </div>
   <div style="position:absolute;left:12mm;right:12mm;bottom:10mm;border-top:1.2px solid #000;padding-top:1.5mm;text-align:center;font-weight:600;font-size:9pt;white-space:pre-wrap">${esc(LH_FOOT)}</div></div>`}
 /* ---- letter page (PDF) ---- */
-async function pLetterK(D,L,k){const pFont=(pt,b)=>(b?'700 ':'500 ')+(pt*PTM*PXM).toFixed(2)+'px "Noto Naskh Arabic","Readex Pro",serif';const x=D.x,W=D.wmm*PXM,H=D.hmm*PXM,mm=PXM;const paras=lLines(L.body).filter(s=>s.trim()),after=lLines(L.after),cc=lLines(L.cc).filter(s=>s.trim()),R=tRows(L.tbl),att=lLines(L.att).filter(s=>s.trim()),sig=(L.sig??L_SIG),sig2=lLines(L.sig2).filter(s=>s.trim()),toP=L.toP??'إلى/';
+async function pLetterK(D,L,k){const pFont=(pt,b)=>(b?'700 ':'600 ')+(pt*PTM*PXM).toFixed(2)+'px "Noto Naskh Arabic","Readex Pro",serif';const x=D.x,W=D.wmm*PXM,H=D.hmm*PXM,mm=PXM;const paras=lLines(L.body).filter(s=>s.trim()),after=lLines(L.after),cc=lLines(L.cc).filter(s=>s.trim()),R=tRows(L.tbl),att=lLines(L.att).filter(s=>s.trim()),sig=(L.sig??L_SIG),sig2=lLines(L.sig2).filter(s=>s.trim()),toP=L.toP??'إلى/';
   const lm=13*mm,rm=W-13*mm,logo=await pImg(LOGO_S),cal=await pImg(LOGO_CAL);
   const frame=()=>{const c=D.x;c.save();c.strokeStyle='#000';c.lineWidth=2.2;c.strokeRect(7*mm,7*mm,W-14*mm,H-14*mm);c.lineWidth=1;c.strokeRect(7.9*mm,7.9*mm,W-15.8*mm,H-15.8*mm);
     if(logo){c.globalAlpha=.06;const w=115*mm;c.drawImage(logo,W/2-w/2,H*.55-w/2,w,w)}c.globalAlpha=1;
@@ -2522,7 +2526,7 @@ async function pLetterK(D,L,k){const pFont=(pt,b)=>(b?'700 ':'500 ')+(pt*PTM*PXM
   const T1=()=>{if(L.to){D.gap(k*3);D.text(toP+' '+L.to,{ff:pFont,sz:k*15,b:1,al:'c',x0:lm,x1:rm,lh:1.7});if(L.to2)D.text(L.to2,{ff:pFont,sz:k*14,b:1,al:'c',x0:lm,x1:rm,lh:1.7});D.gap(k*1)}},S1=()=>{if(L.subj){D.gap(k*1);D.text('م/ '+L.subj,{ff:pFont,sz:k*14,b:1,al:'c',x0:lm,x1:rm,lh:1.7});D.gap(k*4)}};
   if(L.subjFirst){S1();T1()}else{T1();S1()}
   if(L.greet){D.text(L.greet,{ff:pFont,sz:k*14,b:1,x0:lm,x1:rm,lh:1.7});D.gap(k*2)}
-  const PB=p=>{if(isBul(p)){const y1=D.y;D.text(bulT(p),{ff:pFont,sz:k*13,b:1,x0:lm,x1:rm-12*mm,lh:2});const c=D.x;c.font=pFont(k*13,1);c.textAlign='right';c.fillText('•',rm-5*mm,y1+k*13*PTM*mm);return}D.text('     '+p,{ff:pFont,sz:k*13.5,b:0,x0:lm,x1:rm,lh:2.05});D.gap(k*.4)};
+  const PB=p=>{if(isBul(p)){const y1=D.y;D.text(bulT(p),{ff:pFont,sz:k*13,b:1,x0:lm,x1:rm-12*mm,lh:2});const c=D.x;c.font=pFont(k*13,1);c.textAlign='right';c.fillText('•',rm-5*mm,y1+k*13*PTM*mm);return}D.text(p,{ff:pFont,sz:k*13.5,b:0,x0:lm,x1:rm,lh:2.05,ind:9*mm});D.gap(k*.4)};
   for(const p of paras)PB(p);
   if(R.length){const thd=L.thead!==0&&L.thead!=='0',nc=Math.max(...R.map(r=>r.length));x.font=pFont(k*12.5,1);const need=Array(nc).fill(0).map((_,j)=>Math.max(14*mm,...R.map(r=>x.measureText(r[j]||'').width+6*mm)));const tw=rm-lm,sum=need.reduce((a,b)=>a+b,0);let ws=need.map(v=>v*tw/sum);
     D.gap(k*2);for(const[i,r]of R.entries()){const h=thd&&i==0;let x=D.x;const lines=r.map((c,j)=>{x.font=pFont(k*12,1);return wrapT(x,c||'',ws[j]-4*mm)});const rh=Math.max(...lines.map(l=>l.length))*k*12*PTM*mm*1.4+k*2.2*mm;D.ensure(rh);x=D.x;let xr=rm;
@@ -2532,7 +2536,7 @@ async function pLetterK(D,L,k){const pFont=(pt,b)=>(b?'700 ':'500 ')+(pt*PTM*PXM
   if(L.close){D.gap(k*6);D.text(L.close,{ff:pFont,sz:k*14,b:1,al:'c',x0:lm,x1:rm,lh:1.7})}
   if(att.length){D.gap(k*3);D.text('المرفقات:',{ff:pFont,sz:k*12.5,b:1,x0:lm,x1:rm});att.forEach(a=>D.text('- '+a,{ff:pFont,sz:k*12,b:1,x0:lm,x1:rm}))}
   const sl=sig?[...lLines(sig).filter(s=>s.trim()),L.date?fmtD(L.date):'']:[];const n=Math.max(sl.length,sig2.length);const lhs=k*13*PTM*mm*2.1;D.gap(k*11);D.ensure(n*lhs);const y0=D.y,x2=D.x;
-  x2.font=pFont(k*13,1);x2.fillStyle='#000';x2.textAlign='right';sig2.forEach((t,i)=>x2.fillText(t,rm,y0+i*lhs+lhs/2,(rm-lm)/2));x2.textAlign='right';x2.font=pFont(k*13,1);sl.forEach((t,i)=>x2.fillText(t,lm+(rm-lm)*.45,y0+i*lhs+lhs/2,(rm-lm)*.45));D.adv(n*lhs);
+  x2.font=pFont(k*13,1);x2.fillStyle='#000';x2.textAlign='right';sig2.forEach((t,i)=>x2.fillText(t,rm,y0+i*lhs+lhs/2,(rm-lm)/2));x2.textAlign='right';x2.font=pFont(k*13,1);sl.forEach((t,i)=>x2.fillText(t,lm+(rm-lm)*.30,y0+i*lhs+lhs/2,(rm-lm)*.32));D.adv(n*lhs);
   if(L.note){D.gap(k*3);D.text(L.note,{ff:pFont,sz:k*11,b:1,x0:lm,x1:rm})}
   if(cc.length){D.gap(k*5);D.text('نسخة منه إلى:',{ff:pFont,sz:k*11.5,b:1,x0:lm,x1:rm});cc.forEach(c=>D.text('– '+c,{ff:pFont,sz:k*11,x0:lm,x1:rm}))}};
 pLetter=async function(D,L){let k=1;for(const t of [1,.94,.88,.83,.78,.73,.68]){k=t;const T=new PDoc('A4','portrait');await pLetterK(T,L,t);if(T.pages.length<=1)break}await pLetterK(D,L,k)};
@@ -2556,7 +2560,7 @@ buildLetterDocx=async function(L){await lib('jszip');const z=await JSZip.loadAsy
   if(L.close)b+=P(L.close,{sz:15,jc:'center',b:320});
   const att=lLines(L.att).filter(s=>s.trim());if(att.length){b+=P('المرفقات:',{sz:14,jc:'right',b:120,u:1});att.forEach(a=>b+=P('- '+a,{sz:13,jc:'right',a:0}))}
   const NB=`<w:tblBorders>${['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="nil"/>`).join('')}</w:tblBorders>`;
-  b+=P('',{sz:10})+`<w:tbl><w:tblPr><w:bidiVisual/><w:tblW w:w="${TW}" w:type="dxa"/>${NB}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="${TW/2}"/><w:gridCol w:w="${TW/2}"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="${TW/2}" w:type="dxa"/></w:tcPr>${sig2.length?sig2.map(t=>P(t,{sz:15,jc:'right',a:60})).join(''):P('')}</w:tc><w:tc><w:tcPr><w:tcW w:w="${TW/2}" w:type="dxa"/></w:tcPr>${sl.length?sl.map(t=>P(t,{sz:14,jc:'right',a:60})).join(''):P('')}</w:tc></w:tr></w:tbl>`;
+  b+=P('',{sz:10})+`<w:tbl><w:tblPr><w:bidiVisual/><w:tblW w:w="${TW}" w:type="dxa"/>${NB}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="${Math.round(TW*.68)}"/><w:gridCol w:w="${TW-Math.round(TW*.68)}"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="${Math.round(TW*.68)}" w:type="dxa"/></w:tcPr>${sig2.length?sig2.map(t=>P(t,{sz:15,jc:'right',a:60})).join(''):P('')}</w:tc><w:tc><w:tcPr><w:tcW w:w="${TW-Math.round(TW*.68)}" w:type="dxa"/></w:tcPr>${sl.length?sl.map(t=>P(t,{sz:14,jc:'right',a:60})).join(''):P('')}</w:tc></w:tr></w:tbl>`;
   if(L.note)b+=P(L.note,{sz:12,jc:'right',b:160});
   const cc=lLines(L.cc).filter(s=>s.trim());if(cc.length){b+=P('نسخة منه إلى:',{sz:13,jc:'right',b:200});cc.forEach(c=>b+=P('– '+c,{sz:12,jc:'right',a:0,bo:0}))}
   z.file('word/document.xml',LTPL_HEAD+'<w:body>'+b+LTPL_SECT+'</w:body></w:document>');
@@ -2571,7 +2575,7 @@ V.l=()=>{CURX=null;if(!OWN)return emptyState('هذا القسم خاص بمال�
     const ck=(k,l)=>`<label class="sub" style="display:flex;flex-direction:row;gap:6px;align-items:center"><input type="checkbox" id="lf_${k}" style="width:auto" ${L[k]?'checked':''} onchange="lPreview()"> ${l}</label>`;
     const sp=`<div class="box" style="margin:0 0 10px"><h3 style="margin:0 0 6px">تعبئة تلقائية من النظام</h3><div class="tools"><select onchange="lPick('s',this.value)" aria-label="اختر طالب"><option value="">اختر طالباً…</option>${SN.map(sec=>`<optgroup label="${esc(sec)}">${STA().filter(s=>s.s==sec).map(s=>`<option value="${s.id}">${esc(s.n)}</option>`).join('')}</optgroup>`).join('')}</select>
       <select onchange="lPick('t',this.value)" aria-label="اختر مدرس"><option value="">اختر مدرساً…</option>${STF.filter(x=>(x.status||'مستمر')=='مستمر').map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></div>
-      <p class="muted" style="margin:6px 0 0">${tp&&tp.grades?'اختيار الطالب يملأ اسمه وصفه وجدول درجاته من «إدخال الدرجات».':tp&&tp.leave?'اختيار المدرس يملأ اسمه وحصصه بيوم الإجازة من الجدول الأسبوعي (حسب تاريخ الكتاب).':'يملأ الكلمات بين «» مثل «الطالب» و«الصف» و«المدرس». الفراغات (..........) تكتبها بيدك.'}</p></div>`;
+      <p class="muted" style="margin:6px 0 0">${tp&&tp.grades?'اختيار الطالب يملأ اسمه وصفه وجدول درجاته من «إدخال الدرجات».':tp&&tp.leave?'اختيار المدرس يملأ اسمه وحصصه بيوم الإجازة من الجدول الأسبوعي (حسب تاريخ الكتاب).':'اختيار طالب أو مدرس يضيف اسمه للنص بمكان المؤشر (اضغط داخل النص أولاً بالمكان اللي تريده). وبالنماذج تتعبأ «الطالب» و«الصف» و«المدرس» تلقائياً.'}</p></div>`;
     return `<div class="vh"><h2>${L.id?'كتاب العدد '+esc(toAr(L.no||'')):(tp?tp.t:'كتاب جديد')}</h2><div class="tools"><button class="btn ghost sm" onclick="LSEL=null;LDRAFT=null;LTPLK=null;HOLD=0;render()">رجوع</button>${L.id?`<button class="btn ghost sm" onclick="lNew(lRead())">نسخ ككتاب جديد</button><button class="btn danger sm" onclick="ask(this,()=>lDel('${L.id}'))">حذف</button>`:''}</div></div>
     <div class="two"><div>${sp}<div class="box"><div class="fgrid">${f('no','العدد',0,'١٢٣ أو بلا')}${f('date','التاريخ',0,'٧/١٠/٢٠٢٦')}<div class="wide" style="display:flex;gap:14px;flex-wrap:wrap">${ck('nonum','بدون عدد وتاريخ')}${ck('photo','مكان للصورة')}${ck('subjFirst','الموضوع قبل الجهة')}</div>
       ${f('toP','بادئة الجهة',0,'إلى/')}${f('to','الجهة',0,'المديرية العامة لتربية بغداد الرصافة الأولى / قسم ...')}${f('to2','سطر ثانٍ للجهة (اختياري)',0,'')}${f('subj','الموضوع (م/)',0,'')}${f('greet','التحية',0,L_GREET)}
