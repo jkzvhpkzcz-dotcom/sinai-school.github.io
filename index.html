@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <script>window.OFFLINE_COPY=1;document.documentElement.classList.add("offline")</script>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0c362f"><link rel="apple-touch-icon" href="icon-512.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="إعدادية سيناء"><script>window.APP_VER="12xkqp5-2026-10-08T08:30:00.958Z";if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(r){r.update()}).catch(function(){})});navigator.serviceWorker&&navigator.serviceWorker.addEventListener('controllerchange',function(){if(!window.__rl){window.__rl=1;location.reload()}});</script>
 <title>نظام إعدادية سيناء</title>
@@ -2376,6 +2377,7 @@ function ghSave(){if(guard())return;const u=$('gh_u').value.trim().replace(/^@/,
 V.app=()=>{CURX=null;if(!OWN)return emptyState('هذا القسم خاص بمالك النظام','');ghSub();const G=GH||{},url=ghURL(),cur=SNAP?(SNAP.ver||'')+'-'+(SNAP.at||''):'',up=G.ver&&G.ver==cur,{u,r}=ghRepo();
   const repoURL=u?'https://github.com/'+u+'/'+(r||u+'.github.io'):'';
   return `<div class="vh"><h2>تطبيق البوابة</h2><span class="sub">نسخة البوابة على GitHub Pages: تنثبت كتطبيق وتشتغل بدون إنترنت</span></div>
+  <div class="box"><h3>${ic('ok')} التحديث تلقائي</h3><p style="margin:0">التطبيق على <a href="https://sinai-school.github.io/" target="_blank" rel="noopener" dir="ltr">sinai-school.github.io</a> يتحدّث وحده كل ساعتين من آخر نشر للبوابة، وما تحتاج تسوي شي. الأزرار تحت للاحتياط فقط.</p></div>
   ${G.token?`<div class="banner warn">${ic('alert')} Claude ما تسمح للنظام يتصل بـ GitHub مباشرة، فالرمز (Token) ما نحتاجه. <button class="btn ghost sm" onclick="ghPut({token:'',auto:0,err:''});render()">احذف الرمز المحفوظ</button></div>`:''}
   <div class="box ${up?'':'hl'}"><h3>${!G.at?'أول رفع للتطبيق':up?ic('ok')+' آخر تحديث منزّل':'أكو تحديث جديد للتطبيق'}</h3>${url?`<p style="margin:0 0 6px">عنوان التطبيق: <a href="${url}" target="_blank" rel="noopener" dir="ltr">${esc(url)}</a></p>`:''}
    <p class="muted" style="margin:0 0 8px">آخر نشر للبوابة: ${SNAP&&SNAP.at?fmtD(SNAP.at.slice(0,10)):'—'} · آخر تنزيل لملف التحديث: ${G.at?fmtD(G.at.slice(0,10)):'—'}</p>
@@ -2412,3 +2414,5 @@ function render(){if(!$('app')||$('app').hidden)return;PEND=0;$('nav').innerHTML
   $('ptitle').textContent=TITLE[cur]||'';$('main').innerHTML=V[cur]();bindDrop();bindGrid()}
 boot();
 </script>
+
+</body></html>
