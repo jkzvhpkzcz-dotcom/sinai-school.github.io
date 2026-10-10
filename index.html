@@ -2929,7 +2929,7 @@ function repairTT(silent){if(!silent&&guard())return;if(STALE)adoptStale();if(!g
   setTimeout(()=>{try{const ORIG=g.map(a=>a.map(r=>r.slice()));const dc2=(s,d)=>{let x=dc(s,d);const A=g[s][d],O=ORIG[s][d];for(let p=0;p<PER[d];p++)if(A[p]!==O[p])x+=1;return x};
     const full2=()=>{let x=0;for(let d=0;d<5;d++){for(let p=0;p<PER[d];p++)x+=3*tc(d,p);for(let s=0;s<NS;s++)x+=dc2(s,d)}return x};
     let best=null,bf=1e9,bc=1e9;
-    for(let att=0;att<5&&bc>0;att++){g=ORIG.map(a=>a.map(r=>r.slice()));const t0=Date.now(),TL=5000;let lb=g.map(a=>a.map(r=>r.slice())),lf=full2(),T0=2,Tc=T0;
+    for(let att=0;att<6&&bc>0;att++){g=(att%2&&best?best:ORIG).map(a=>a.map(r=>r.slice()));const t0=Date.now(),TL=6000;let lb=g.map(a=>a.map(r=>r.slice())),lf=full2(),T0=2,Tc=T0;
       for(let it=0;it<9e7;it++){if(it%500==0){const f=full2(),el=Date.now()-t0;if(f<lf){lf=f;lb=g.map(a=>a.map(r=>r.slice()))}if(el>TL)break;Tc=T0*Math.pow(.02/T0,el/TL)}
         let s,d1,p1;if(Math.random()<.5)[s,d1,p1]=pick();else{s=rnd(NS);d1=rnd(5);p1=rnd(PER[d1])}const d2=Math.random()<.6?d1:rnd(5),p2=rnd(PER[d2]);if(d1==d2&&p1==p2)continue;
         const a={d:d1,p:p1},b={d:d2,p:p2},S=swapSet(s,a,b);const f=()=>{let v=3*(tc(d1,p1)+tc(d2,p2));for(const x of S)v+=dc2(x,d1)+(d1==d2?0:dc2(x,d2));return v};const b0=f();doSwap(S,a,b);const dl=f()-b0;if(dl>0&&Math.random()>Math.exp(-dl/Tc))doSwap(S,a,b)}
@@ -2938,7 +2938,11 @@ function repairTT(silent){if(!silent&&guard())return;if(STALE)adoptStale();if(!g
     TT={g,c:clash(),sig:sig(),rv:2};rooms();STALE=0;GENING=0;REPON=0;P.tt();render();
     toast(TT.c?`بقي ${toAr(TT.c)} تعارض، اضغط «إصلاح التعارضات» مرة ثانية`:`تمت معالجة التعارضات — تغيّر مكان ${toAr(moved)} خانة فقط`)}catch(e){console.error(e);GENING=0;REPON=0;render()}},60)}
 /* when the owner opens the system, any clash left in the saved timetable is fixed automatically (once per visit) */
-let REPT=null,REPDONE=0;{const _ap28=applyTT;applyTT=function(){_ap28();clearTimeout(REPT);REPT=setTimeout(()=>{if(REPDONE||!OWN||GENING||REPON||!READY.cfg||!READY.tt)return;if(canRepairStale()){REPDONE=1;repairTT(1);return}if(!g.length||STALE)return;if(ttIssues()){REPDONE=1;repairTT(1)}},1500)}}
+let REPT=null,REPDONE=0;
+function autoRep(){if(REPDONE||!OWN||GENING||REPON||RST27ON&&!YD.mig27b||!READY.cfg||!READY.tt)return;if(canRepairStale()){REPDONE=1;repairTT(1);return}if(!g.length||STALE)return;if(ttIssues()){REPDONE=1;repairTT(1)}}
+{const _ap28=applyTT;applyTT=function(){_ap28();clearTimeout(REPT);REPT=setTimeout(autoRep,1500)}}
+/* the owner's role may be confirmed after the data arrives, so keep checking for a while after opening */
+{let n=0;const iv=setInterval(()=>{n++;try{restore27();if(YD&&YD.mig27b)autoRep()}catch(e){}if(n>90)clearInterval(iv)},2000)}
 {const _Vt28=V.t;V.t=()=>{let h=_Vt28();const n=ttIssues();return h.replace(/(<button class="btn" onclick="gen\(\)"[^>]*>[\s\S]*?<\/button>)/,`$1${(g.length&&!STALE)||canRepairStale()?`<button class="btn ${n?'':'ghost'}" onclick="repairTT()" ${GENING?'disabled':''}>${ic('shield')} إصلاح التعارضات${n?' ('+toAr(n)+')':''}</button>`:''}`)}}
 
 /* ---------- install on home screen / desktop ---------- */
