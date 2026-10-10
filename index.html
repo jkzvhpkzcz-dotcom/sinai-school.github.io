@@ -2759,7 +2759,7 @@ const SJAV={'حاسوب':4,'رياضيات':5};
 const sjBad=(sj,p)=>SJAV[sj]!=null&&p>=SJAV[sj];
 const compN=(d,p)=>{let a=0;const seen=new Set();for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);if(U[u].sj=='حاسوب')a++}return a};
 const _tc21=tc;tc=function(d,p){let x=_tc21(d,p);const seen=new Set();let a=0;
-  for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);const j=U[u].sj;if(j=='حاسوب'){a++;if(p>=4)x+=8}else if(j=='رياضيات'&&p>=5)x+=p==6?4:3}
+  for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);const j=U[u].sj;if(j=='حاسوب'){a++;if(p>=4)x+=10}else if(j=="رياضيات"&&p>=5)x+=p==6?9:7}
   if(a>1)x-=6*(a-1);/* two computer lessons at once is allowed (the second in a classroom), but less liked than an empty lab */
   return x};
 clash=function(){let x=0;for(let d=0;d<5;d++)for(let p=0;p<PER[d];p++)x+=(_tc20(d,p)-10*Math.max(0,compN(d,p)-1))/10;return Math.round(x)};
@@ -2808,6 +2808,21 @@ const nickOf=i=>{const m=ydCfg().nick||{};const n=T[i];if(m[n])return m[n];for(c
 {const _fn21=firstNames;firstNames=function(){return _fn21().map((s,i)=>nickOf(i)||s)}}
 if(T.length)SH=SH.map((s,i)=>nickOf(i)||s);
 
+/* ================= v22: shared lessons (two sections, one teacher) so every rule fits ================= */
+function mig22(){try{if(!OWN||!YD||YD.mig22||!YD.mig21||!Array.isArray(DATA)||!DATA.length)return;const si=n=>SN.indexOf(n);
+  const joint=(nm,sj,A,B,k)=>{const a=si(A),b=si(B);const e=DATA.find(x=>x[0].startsWith(nm)&&x[1]==sj);if(!e||a<0||b<0)return;
+    const ia=e[2].findIndex(it=>it[0]===a),ib=e[2].findIndex(it=>it[0]===b);if(ia<0||ib<0)return;const ha=e[2][ia][1],hb=e[2][ib][1],kk=Math.min(k,ha,hb);if(kk<1)return;
+    e[2]=e[2].filter((_,i)=>i!=ia&&i!=ib);e[2].push([[a,b],kk]);if(ha>kk)e[2].push([a,ha-kk]);if(hb>kk)e[2].push([b,hb-kk])};
+  /* maths */
+  joint('حسن كاظم','رياضيات','السادس الأدبي أ','السادس الأدبي ب',9);
+  joint('براءة','رياضيات','الرابع العلمي ب','الرابع العلمي ج',1);joint('براءة','رياضيات','الرابع العلمي د','الرابع العلمي هـ',1);
+  joint('مهدي','رياضيات','الخامس الأدبي أ','الخامس الأدبي ب',2);
+  /* computer: the lab holds every lesson inside periods 1–4 */
+  joint('احمد عبد الباسط','حاسوب','الخامس العلمي أ','الخامس العلمي ب',1);joint('احمد عبد الباسط','حاسوب','الخامس العلمي ج','الخامس العلمي د',1);joint('احمد عبد الباسط','حاسوب','الخامس الأدبي أ','الخامس الأدبي ب',9);
+  joint('وسام رياض','حاسوب','الرابع العلمي أ','الرابع العلمي ب',1);joint('وسام رياض','حاسوب','الرابع العلمي ج','الرابع العلمي د',1);joint('وسام رياض','حاسوب','الرابع الأدبي أ','الرابع الأدبي ب',9);
+  YD.mig22=1;MIGRG=1;setTimeout(()=>{try{P.cfg()}catch(e){}},0)}catch(e){console.error(e)}}
+{const _seed22=seedMeta;seedMeta=function(){_seed22();mig22()}}
+
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
 function instShow(){const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),and=/Android/.test(ua);
@@ -2831,6 +2846,46 @@ let cur='h';
 function view(v){if(!V[v])v='h';if(v!=cur){cur=v;ED=null;SEL=null;EDIT=0;TEDIT=0;SED=null;KSEL=null;KED=null;KIMP=null;LSEL=null;LDRAFT=null;SX=null;QSEL=null;QIMP=null;QADD=0;MSEL=null;MED=null;AADD=0;ASEL=null;if(v!='p'){IMP=null;PT='a'}HOLD=0}$('app').classList.remove('open');render();window.scrollTo(0,0)}
 function render(){if(!$('app')||$('app').hidden)return;PEND=0;$('nav').innerHTML=navg().map(([gn,L])=>`<div class="ng">${gn?`<span>${gn}</span>`:''}${L.map(([k,n,i])=>`<button class="nv" ${k==cur?'aria-current="page"':''} onclick="view('${k}')">${ic(i)}<span>${n}</span></button>`).join('')}</div>`).join('');
   $('ptitle').textContent=TITLE[cur]||'';$('main').innerHTML=V[cur]();bindDrop();bindGrid()}
+/* ================= hubs: the home screen and the side menu show a few groups; each group opens its own page of icons ================= */
+const HUBS=[['gt','الجداول','cal','الجدول الأسبوعي، الاحتياط، مراقبة الساحة',['t','x','yd','o','c']],
+  ['gs','الطلاب','users','الأسماء، الغياب، الدرجات والنتائج والسجلات',['p','a','g','r','n','s6','sw','q','z']],
+  ['gf','المدرسون والملاك','teacher','المدرسون، الملاك، الجرد والرواتب',['m','f','i','k','sal']],
+  ['gl','الكتب والمراسلات','mail','الكتب الرسمية، النماذج، الصادر والوارد',['l','lt','y']],
+  ['gy','البوابة والنظام','globe','بوابة المدرسين والطلاب، التطبيق، النسخ الاحتياطي',['w','app','b']]];
+const HDESC={t:'توليد آلي، تعديل يدوي، وطباعة A4 وA3',x:'حصص المدرس الغائب ومن يغطيها',yd:'جدول المراقبين الأسبوعي',o:'جدول توزيع الحصص الرسمي',c:'الشعب والمواد المعتمدة لكل صف',
+  p:'إضافة يدوية أو من ملف Word وPDF وExcel',a:'حاضر، غائب، مجاز، وإنذارات الغياب',g:'الفصلان ونصف السنة والنهائي والإكمال',r:'بطاقة الدرجات الرسمية وكشوف النتائج',n:'النموذج الرسمي للنهائي ونصف السنة',s6:'استمارة طلاب السادس',sw:'السجل الوسطي حسب النموذج',q:'الأسماء وأرقام الصفحات وصور السجل',z:'السجلات الوسطية وبوردات الدرجات الوزارية',
+  m:'الحصص والمواد وأوقات عدم التوفر',f:'الإحصائيات، داخل وخارج قوى العمل',i:'السجل الإحصائي للملاك',k:'الملفات الكاملة، الخدمة والتقاعد',sal:'الرواتب الشهرية وتفاصيلها',
+  l:'إنشاء وأرشفة الكتب بالقالب الرسمي',lt:'نماذج جاهزة تنملي بالأسماء',y:'سجل الكتب مع الجهة والتاريخ والصور',w:'نشر الجداول والأسماء للمدرسين والطلاب',app:'تثبيت التطبيق وتحديثه التلقائي',b:'تنزيل واسترجاع كل البيانات'};
+const NAVI=Object.fromEntries(NAVG0.flatMap(g0=>g0[1].map(x=>[x[0],x])));
+const hubKids=h=>h[4].map(k=>NAVI[k]).filter(x=>x&&(!x[3]||OWN));
+const hubOf=k=>HUBS.find(h=>h[0]==k||h[4].includes(k));
+HUBS.forEach(h=>{TITLE[h[0]]=h[1];V[h[0]]=()=>{const K=hubKids(h);return `<div class="hubhd"><span class="hubi">${ic(h[2])}</span><div><h2>${h[1]}</h2><p class="muted">${h[3]}</p></div></div>
+  <div class="hubg">${K.map(([k,n,i])=>`<button type="button" class="hubc" onclick="view('${k}')"><span class="hubi">${ic(i)}</span><b>${n}</b><span>${HDESC[k]||''}</span></button>`).join('')}</div>`}});
+const hubTiles=()=>`<div class="hubg hubm">${HUBS.map(h=>[h,hubKids(h)]).filter(x=>x[1].length).map(([h,K])=>`<button type="button" class="hubc" onclick="view('${h[0]}')"><span class="hubi">${ic(h[2])}</span><b>${h[1]}</b><span>${h[3]}</span><em>${toAr(K.length)} ${K.length>2&&K.length<11?'أقسام':'قسم'}</em></button>`).join('')}</div>`;
+{const _Vh=V.h;V.h=()=>{let s=_Vh();const a=s.indexOf('<p class="sect">التدريس والطلبة</p>'),b=s.indexOf('<div class="two">');if(a>=0&&b>a)s=s.slice(0,a)+hubTiles()+s.slice(b);else s=s+hubTiles();return s}}
+render=function(){if(!$('app')||$('app').hidden)return;PEND=0;const H=hubOf(cur);
+  $('nav').innerHTML=`<div class="ng"><button class="nv" ${cur=='h'?'aria-current="page"':''} onclick="view('h')">${ic('home')}<span>الرئيسية</span></button></div><div class="ng">${HUBS.filter(h=>hubKids(h).length).map(h=>`<button class="nv" ${H&&H[0]==h[0]?'aria-current="page"':''} onclick="view('${h[0]}')">${ic(h[2])}<span>${h[1]}</span></button>`).join('')}</div>`;
+  $('ptitle').textContent=TITLE[cur]||'';let m=V[cur]();
+  if(H&&H[0]!=cur)m=`<div class="crumb"><button type="button" class="btn ghost sm" onclick="view('${H[0]}')">${ic('back')} ${H[1]}</button></div>`+m;
+  $('main').innerHTML=m;bindDrop();bindGrid()};
+{const st=document.createElement('style');st.textContent=`
+.hubg{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:1000px;margin:6px auto 22px}
+.hubg>.hubc{flex:0 1 calc((100% - 56px)/5);min-width:170px}
+.hubm{margin-top:14px}
+.hubc{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 14px 18px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,border-color .15s,box-shadow .15s;color:inherit;font:inherit;min-height:168px}
+.hubc:hover{transform:translateY(-2px);border-color:var(--accent)}
+.hubc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hubc b{font-size:16px}
+.hubc>span:not(.hubi){font-size:12.5px;color:var(--muted);line-height:1.6}
+.hubc em{font-style:normal;font-size:12px;color:var(--accent);background:var(--sunk);border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin-top:auto}
+.hubi{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:var(--sunk);color:var(--accent);border:1px solid var(--line);flex:none}
+.hubi .ic{width:28px;height:28px}
+.hubhd{display:flex;align-items:center;gap:14px;justify-content:center;text-align:center;flex-direction:column;margin:8px auto 4px}
+.hubhd h2{margin:0}.hubhd p{margin:4px 0 0}
+.crumb{margin:0 0 10px}.crumb .ic{transform:scaleX(-1)}
+@media (max-width:600px){.hubg{gap:10px}.hubg>.hubc{flex:0 1 calc(50% - 5px);min-width:0}.hubc{min-height:150px;padding:16px 10px 14px}.hubc>span:not(.hubi){font-size:11.5px}.hubi{width:50px;height:50px}}
+`;document.head.appendChild(st)}
+
 boot();
 </script>
 </body></html>
