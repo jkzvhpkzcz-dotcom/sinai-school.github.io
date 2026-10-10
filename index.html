@@ -2874,7 +2874,11 @@ const EXNOTE=['يبدأ الامتحان الساعة 8:00 صباحاً وينت
 const WDN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 let EXK='mid';
 const exG=()=>[...new Set(SN.map(grp))];
-const exGet=k=>{const o=((ydCfg().ex||{})[k])||{};return{rows:(o.rows||[]).map(r=>({d:r.d||'',c:[...(r.c||[])]})),notes:o.notes!=null?o.notes:EXNOTE,g:o.g||exG()}};
+/* the sixth grade sits ministerial finals, so it is left out of the end-of-year timetables */
+const exNo6=k=>k=='f1'||k=='f2';
+const exGet=k=>{const o=((ydCfg().ex||{})[k])||{};let g=o.g||exG(),rows=(o.rows||[]).map(r=>({d:r.d||'',c:[...(r.c||[])]}));
+  if(exNo6(k)){const keep=g.map((x,i)=>/^السادس/.test(x)?-1:i).filter(i=>i>=0);g=keep.map(i=>g[i]);rows=rows.map(r=>({d:r.d,c:keep.map(i=>r.c[i]||'')}))}
+  return{rows,notes:o.notes!=null?o.notes:EXNOTE,g}};
 const wdOf=iso=>iso?WDN[new Date(iso+'T12:00').getDay()]:'';
 const mdOf=iso=>{if(!iso)return'';const[,m,d]=iso.split('-');return(+m)+'/'+(+d)};
 function exRead(){const E=exGet(EXK),G=E.g;const rows=[...document.querySelectorAll('#exT tr[data-i]')].map(tr=>({d:tr.querySelector('input[type=date]').value,c:G.map((_,j)=>(tr.querySelector('[data-j="'+j+'"]')||{}).value||'')}));return{rows,notes:($('exN')||{}).value??E.notes,g:G}}
