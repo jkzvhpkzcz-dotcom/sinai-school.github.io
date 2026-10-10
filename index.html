@@ -2684,7 +2684,7 @@ solve=function(){init();const t0=Date.now(),TL=13000;let T0=3,best=null,bf=1e9,T
   if(best&&full()>bf)g=best;return clash()};
 
 /* ================= v20: a home room for every teacher (room-mates kept apart), social rooms 7–8, المختبر, effective date ================= */
-const LAB='المختبر',SMART='القاعة الذكية',YARD='الساحة';
+const LAB='المختبر',SMART='القاعة الذكية',YARD='الساحة',FROOM={'مكتبة':'المكتبة','مختبر الصوت':'مختبر الصوت'};
 YD0.rm={'سيف محمد إبراهيم عبد الله':1,'سفيان ثاير ودود علي':1,'سارة عبد الجبار محمد علي نوروز':2,'ياسمين جاسب ملك خلف':3,'زينب احمد جواد كاظم':4,'افين موسى إبراهيم حسين':4,
   'محمد فرمان داود باقر':5,'سرور مظفر محمد كامل مرجان':'ذ','علي عوفي مطر يوسف':6,'هديل هادي كاظم جار الله':9,'خضير عباس قنبر كريم':9,'محمد حازم محمد':10,'علي صباح جاسم عوده':11,
   'احمد عبد الرزاق حسين حمودي':12,'صلاح حميد فرحان جاسم':12,'مهدي ناجي عباس علي':13,'حسن كاظم عبد الرضا علي':13,'براءة طالب عبد شفي':14,'مصطفى زهير عبد الزهره صخيل':15,
@@ -2699,7 +2699,7 @@ function rmMap(){const m=ydCfg().rm||{},key=JSON.stringify(m)+'|'+T.join(',');if
 const effDate=()=>{const e=ydCfg().eff||'';if(!e)return'';const[y,mo,da]=e.split('-');return toAr(y+'/'+(+mo)+'/'+(+da))};
 /* solver: room-mates should not teach at the same time; social lessons fit the two social rooms */
 const _tc20=tc;let RMQ=[];
-function rmPrep(){const M=rmMap();RMQ=U.map(u=>u.sj=='رياضة'||u.sj=='حاسوب'?null:SOCJ.has(u.sj)?'S':M[u.t])}
+function rmPrep(){const M=rmMap();RMQ=U.map(u=>u.sj=='رياضة'||u.sj=='حاسوب'||FROOM[u.sj]?null:SOCJ.has(u.sj)?'S':M[u.t])}
 tc=function(d,p){let x=_tc20(d,p);if(RMQ.length!=U.length)return x;const c={},seen=new Set();let so=0;
   for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);const k=RMQ[u];if(k==null)continue;if(k=='S')so++;else{if(c[k])x+=2;c[k]=1}}
   const ns=(ydCfg().soc||[]).length;if(so>ns)x+=2*(so-ns);return x};
@@ -2712,8 +2712,8 @@ rooms=function(){const M=rmMap(),SOC=(ydCfg().soc||[]).map(Number),own={};M.forE
   for(let d=0;d<5;d++){const last={};for(let p=0;p<PER[d];p++){const used=new Set(),byU={},put=(s,r)=>{R[s][d][p]=r;used.add(r);byU[g[s][d][p]]=r};
     const L=[];for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0)continue;if(byU[u]){R[s][d][p]=byU[u];continue}L.push(s)}
     const pass=(f)=>{for(let i=L.length-1;i>=0;i--){const s=L[i],u=g[s][d][p];if(byU[u]){R[s][d][p]=byU[u];L.splice(i,1);continue}const r=f(U[u],s);if(r&&!used.has(r)){put(s,r);L.splice(i,1)}}};
-    pass(u=>u.sj=='رياضة'?YARD:u.sj=='حاسوب'?LAB:null);
-    pass(u=>u.sj!='رياضة'&&u.sj!='حاسوب'&&!SOCJ.has(u.sj)&&M[u.t]!=null?rmName(M[u.t]):null);
+    pass(u=>u.sj=='رياضة'?YARD:u.sj=='حاسوب'?LAB:FROOM[u.sj]||null);
+    pass(u=>u.sj!='رياضة'&&u.sj!='حاسوب'&&!FROOM[u.sj]&&!SOCJ.has(u.sj)&&M[u.t]!=null?rmName(M[u.t]):null);
     for(const k of SOC)pass(u=>SOCJ.has(u.sj)?'قاعة '+k:null);
     /* everyone else (and anyone whose room is busy): keep the teacher in the same room as his last lesson today when free, else the least-used spare room */
     pass(u=>{const r=last[u.t];return r&&!used.has(r)?r:null});
@@ -2827,6 +2827,31 @@ const TM23A=[['8:00 ص','8:40 ص'],['8:40 ص','9:15 ص'],['9:25 ص','10:00 ص'],
   TM23B=[['12:30 م','1:10 م'],['1:10 م','1:50 م'],['2:00 م','2:35 م'],['2:35 م','3:10 م'],['3:20 م','3:55 م'],['3:55 م','4:30 م'],['','']];
 function mig23(){try{if(!OWN||!YD||YD.mig23)return;TMS=[TM23A,TM23A,TM23A,TM23B,TM23B].map(d=>d.map(x=>[...x]));YD.mig23=1;setTimeout(()=>{try{P.cfg();render()}catch(e){}},0)}catch(e){console.error(e)}}
 {const _seed23=seedMeta;seedMeta=function(){_seed23();mig23()}}
+/* ===== v24: every section has 7 lessons Sun–Tue and 6 Wed–Thu; short sections get library lessons (their Arabic teacher) and sound-lab lessons (their English teacher), preferably Wed–Thu ===== */
+const FILL=new Set(['مكتبة','مختبر الصوت']);
+const fillN=(d,p,sj)=>{let a=0;const seen=new Set();for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);if(U[u].sj==sj)a++}return a};
+{const _tc24=tc;tc=function(d,p){let x=_tc24(d,p);const seen=new Set();let lb=0,sl=0;for(let s=0;s<NS;s++){const u=g[s][d][p];if(u<0||seen.has(u))continue;seen.add(u);const j=U[u].sj;if(j=='مكتبة'){lb++;if(d<3)x+=2}else if(j=='مختبر الصوت'){sl++;if(d<3)x+=2}}
+  return x+10*(Math.max(0,lb-1)+Math.max(0,sl-1))}}
+{const _cl24=clash;clash=function(){let x=_cl24();for(let d=0;d<5;d++)for(let p=0;p<PER[d];p++)x+=Math.max(0,fillN(d,p,'مكتبة')-1)+Math.max(0,fillN(d,p,'مختبر الصوت')-1);return x}}
+{const _dc24=derivedCur;derivedCur=function(...a){const r=_dc24(...a);return Array.isArray(r)?r.filter(j=>!FILL.has(j)):r}}
+{const _v24=verifyTT;verifyTT=function(){const v=_v24();if(!v)return v;const B=[];for(let d=0;d<5;d++)for(let p=0;p<PER[d];p++){if(fillN(d,p,'مكتبة')>1)B.push(`المكتبة — ${DAYS[d]} الحصة ${p+1}`);if(fillN(d,p,'مختبر الصوت')>1)B.push(`مختبر الصوت — ${DAYS[d]} الحصة ${p+1}`)}
+  const n=U.filter(u=>FILL.has(u.sj)).length;if(n){const o={ok:!B.length,txt:B.length?'المكتبة أو مختبر الصوت محجوز لأكثر من درس':'المكتبة ومختبر الصوت لا يتداخل فيهما درسان',list:B};(o.ok?v.items:v.bad).push(o);if(!o.ok)v.ok=false}
+  const early=SN.filter((_,s)=>dayLoad(s).some((x,d)=>x<PER[d]));{const o={ok:!early.length,txt:early.length?'شعب تطلع قبل نهاية الدوام: '+toAr(early.length):'كل الشعب تكمل الدوام كاملاً (٧ دروس الأحد–الثلاثاء، ٦ الأربعاء والخميس)',list:early};(o.ok?v.items:v.bad).push(o);if(!o.ok)v.ok=false}
+  return v}}
+function mig24(){try{if(!OWN||!YD||YD.mig24||!YD.mig22||!Array.isArray(DATA)||!DATA.length)return;const si=n=>SN.indexOf(n);
+  const add=(nm,sj,list)=>{const t=(DATA.find(x=>x[0].startsWith(nm))||[])[0];if(!t)return;let e=DATA.find(x=>x[0]==t&&x[1]==sj);if(!e){e=[t,sj,[]];DATA.push(e)}
+    list.forEach(([S,h])=>{const ix=S.map(si);if(ix.some(i=>i<0))return;e[2].push([ix.length>1?ix:ix[0],h])})};
+  const R4='الرابع العلمي ',L4='الرابع الأدبي ',S5='الخامس العلمي ',L6='السادس الأدبي ';
+  add('وسام علي','مكتبة',[[[R4+'أ',R4+'ب'],1],[[R4+'ج',R4+'د'],1]]);
+  add('سارة','مكتبة',[[[R4+'هـ'],1],[[S5+'أ',S5+'ب'],2],[[S5+'ج',S5+'د'],2]]);
+  add('زينب','مكتبة',[[[L4+'أ',L4+'ب'],1]]);
+  add('احمد عبد الرزاق حسين','مكتبة',[[[L6+'أ',L6+'ب'],1]]);
+  add('ياسمين','مختبر الصوت',[[[R4+'أ',R4+'ب'],1],[[R4+'ج'],1],[[S5+'أ',S5+'ب'],1]]);
+  add('مصطفى','مختبر الصوت',[[[R4+'د',R4+'هـ'],1],[[L4+'أ',L4+'ب'],2]]);
+  add('علي صباح','مختبر الصوت',[[[S5+'ج',S5+'د'],1]]);
+  add('نشوان','مختبر الصوت',[[[L6+'أ',L6+'ب'],1]]);
+  YD.mig24=1;MIGRG=1;setTimeout(()=>{try{P.cfg()}catch(e){}},0)}catch(e){console.error(e)}}
+{const _seed24=seedMeta;seedMeta=function(){_seed24();mig24()}}
 
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
