@@ -2853,6 +2853,56 @@ function mig24(){try{if(!OWN||!YD||YD.mig24||!YD.mig22||!Array.isArray(DATA)||!D
   YD.mig24=1;MIGRG=1;setTimeout(()=>{try{P.cfg()}catch(e){}},0)}catch(e){console.error(e)}}
 {const _seed24=seedMeta;seedMeta=function(){_seed24();mig24()}}
 
+/* ================= v25: printable lesson times + exam timetables ================= */
+const tmMin=s=>{const m=String(s||'').match(/(\d{1,2})\s*[:.]\s*(\d{2})\s*(ص|م)?/);if(!m)return null;let h=+m[1];const mi=+m[2],ap=m[3];if(ap=='م'&&h<12)h+=12;if(ap=='ص'&&h==12)h=0;if(!ap&&h<7)h+=12;return h*60+mi};
+/* rows of one day: lessons and the breaks between them */
+function dayRows(d){const L=(TMS[d]||[]).slice(0,PER[d]),out=[];L.forEach((t,p)=>{if(p){const a=tmMin(L[p-1][1]),b=tmMin(t[0]);if(a!=null&&b!=null&&b>a)out.push({br:1,f:L[p-1][1],t:t[0],m:b-a})}const a=tmMin(t[0]),b=tmMin(t[1]);out.push({p,f:t[0],t:t[1],m:a!=null&&b!=null?b-a:null})});return out}
+function mTimes(){const G=[];DAYS.forEach((dn,d)=>{const k=JSON.stringify((TMS[d]||[]).slice(0,PER[d]));const g0=G.find(x=>x.k==k);if(g0)g0.d.push(d);else G.push({k,d:[d]})});
+  const join=a=>a.length<=1?a.join(''):a.slice(0,-1).join(' و')+' و'+a[a.length-1];
+  const rows=[];G.forEach((g0,i)=>{const R0=dayRows(g0.d[0]),st=R0.length?R0[0].f:'',en=R0.length?R0[R0.length-1].t:'',pm=tmMin(st)!=null&&tmMin(st)>=12*60;
+    rows.push([{v:`${join(g0.d.map(d=>DAYS[d]))} — دوام ${pm?'ظهري':'صباحي'} (${toAr(st)} – ${toAr(en)})`,cs:4,bg:C.title,b:1,fz:1.05}]);
+    rows.push(['الدرس','من','إلى','المدة'].map(v=>({v,bg:C.side,b:1})));
+    R0.forEach(r=>rows.push(r.br?[{v:'فرصة',bg:C.sub,b:1},{v:toAr(r.f),bg:C.sub},{v:toAr(r.t),bg:C.sub},{v:toAr(r.m)+' دقائق',bg:C.sub}]:[{v:'الدرس '+['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع'][r.p],b:1},toAr(r.f),toAr(r.t),r.m!=null?toAr(r.m)+' دقيقة':'']));
+    if(i<G.length-1)rows.push([{v:'',cs:4,bg:C.sep,sep:1}])});
+  return{title:'أوقات الدروس والفرص',sub:'العام الدراسي '+YR,sheet:'أوقات الدروس',rows,orient:'portrait',paper:'A4',fs:12,hr:0,ww:[3,2,2,2],grow:1.7,fit1:1}}
+function printTimes(){exportSheets('pdf','أوقات الدروس والفرص',[mTimes()])}
+{const _Vt25=V.t;V.t=()=>_Vt25().replace(/(<button class="btn ghost sm" onclick="TEDIT=TEDIT\?0:1;HOLD=TEDIT;render\(\)">[\s\S]*?<\/button>)/,`$1<button class="btn ghost sm" onclick="printTimes()">${ic('print')} طباعة أوقات الدروس والفرص</button>`)}
+
+/* ---------- exam timetables ---------- */
+const EXT=[['m11','جدول امتحانات الشهر الأول للفصل الدراسي الأول'],['m12','جدول امتحانات الشهر الثاني للفصل الدراسي الأول'],['mid','جدول امتحانات نصف السنة'],['m21','جدول امتحانات الشهر الأول للفصل الدراسي الثاني'],['m22','جدول امتحانات الشهر الثاني للفصل الدراسي الثاني'],['f1','جدول امتحانات نهاية السنة — الدور الأول'],['f2','جدول امتحانات نهاية السنة — الدور الثاني']];
+const EXNOTE=['يبدأ الامتحان الساعة 8:00 صباحاً وينتهي الساعة 10:00 صباحاً ولمدة ساعتين.','الحضور المبكر للامتحان بنصف ساعة ولا يُسمح للطالب بالدخول بعد توزيع الأسئلة.','يمنع خروج الطلبة من قاعة الامتحان إلا بعد مرور ساعة على الامتحان.','يمنع إحضار الموبايل والحاسبة إلى القاعة الامتحانية.','على جميع الطلبة جلب كافة المستلزمات الامتحانية، ويمنع الاستعارة داخل القاعة الامتحانية منعاً باتاً.','كل طالب غش أو حاول الغش في أي مادة في الامتحان يعتبر راسباً في تلك المادة حسب المادة 47 من نظام المدارس الثانوية رقم 2 لسنة 1977.','إذا صادف عطلة رسمية في أي يوم من الامتحانات يؤجل امتحان ذلك اليوم إلى اليوم الذي يليه.'].join('\n');
+const WDN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+let EXK='mid';
+const exG=()=>[...new Set(SN.map(grp))];
+const exGet=k=>{const o=((ydCfg().ex||{})[k])||{};return{rows:(o.rows||[]).map(r=>({d:r.d||'',c:[...(r.c||[])]})),notes:o.notes!=null?o.notes:EXNOTE,g:o.g||exG()}};
+const wdOf=iso=>iso?WDN[new Date(iso+'T12:00').getDay()]:'';
+const mdOf=iso=>{if(!iso)return'';const[,m,d]=iso.split('-');return(+m)+'/'+(+d)};
+function exRead(){const E=exGet(EXK),G=E.g;const rows=[...document.querySelectorAll('#exT tr[data-i]')].map(tr=>({d:tr.querySelector('input[type=date]').value,c:G.map((_,j)=>(tr.querySelector('[data-j="'+j+'"]')||{}).value||'')}));return{rows,notes:($('exN')||{}).value??E.notes,g:G}}
+function exSave(silent){if(guard())return;const o=exRead();YD.ex={...(ydCfg().ex||{})};YD.ex[EXK]=o;HOLD=0;P.cfg();if(!silent){toast('حُفظ '+EXT.find(x=>x[0]==EXK)[1]);render()}}
+function exAdd(){if(guard())return;const o=exRead();let d=o.rows.length&&o.rows[o.rows.length-1].d?new Date(o.rows[o.rows.length-1].d+'T12:00'):null;let iso='';
+  if(d){do{d=new Date(d.getTime()+864e5)}while(d.getDay()==5);iso=isoD(d)}o.rows.push({d:iso,c:o.g.map(()=>'')});YD.ex={...(ydCfg().ex||{})};YD.ex[EXK]=o;P.cfg();HOLD=0;render()}
+function exDel(i){if(guard())return;const o=exRead();o.rows.splice(i,1);YD.ex={...(ydCfg().ex||{})};YD.ex[EXK]=o;P.cfg();HOLD=0;render()}
+function exClear(){if(guard())return;if(!confirm('تفريغ هذا الجدول؟'))return;YD.ex={...(ydCfg().ex||{})};delete YD.ex[EXK];P.cfg();render()}
+V.ex=()=>{const E=exGet(EXK),G=E.g,T0=EXT.find(x=>x[0]==EXK)[1];
+  const dl=G.map((gn,j)=>`<datalist id="exl${j}">${(derivedCur(gn)||[]).map(s=>`<option value="${esc(s)}">`).join('')}<option value="بلا امتحان"></datalist>`).join('');
+  return `<div class="vh"><h2>جداول الامتحانات</h2><span class="sub">كل جدول ينحفظ وحده ويطبع بشعار المدرسة والتعليمات</span></div>
+  <div class="tools"><select id="exk" onchange="EXK=this.value;HOLD=0;render()" aria-label="نوع الجدول">${EXT.map(([k,t])=>`<option value="${k}" ${k==EXK?'selected':''}>${t}</option>`).join('')}</select></div>
+  <div class="box"><h3>${T0} — ${esc(YR)}</h3>${dl}
+   <div class="tw"><table id="exT"><tr><th>اليوم</th><th>التاريخ</th>${G.map(gn=>`<th>${esc(gn)}</th>`).join('')}<th></th></tr>
+   ${E.rows.map((r,i)=>`<tr data-i="${i}"><td><b>${wdOf(r.d)}</b></td><td><input type="date" value="${r.d}" oninput="HOLD=1" onchange="exSave(1);render()" style="width:140px"></td>${G.map((_,j)=>`<td><input data-j="${j}" list="exl${j}" value="${esc(r.c[j]||'')}" oninput="HOLD=1" placeholder="—" style="width:100%;min-width:96px"></td>`).join('')}<td><button class="btn ghost sm" onclick="exDel(${i})" aria-label="حذف اليوم">✕</button></td></tr>`).join('')||`<tr><td colspan="${G.length+3}" class="muted">ما بيه أيام بعد. اضغط «إضافة يوم».</td></tr>`}</table></div>
+   <div class="tools"><button class="btn ghost sm" onclick="exAdd()">${ic('plus')} إضافة يوم</button><span class="sub">الخانة الفارغة تطلع رمادية بالطباعة (بلا امتحان). اكتب المادة أو اختارها من القائمة، مثل «الحاسوب + الفنية».</span></div>
+   <h3 style="margin-top:14px">التعليمات الامتحانية (أسفل الجدول)</h3><textarea id="exN" rows="8" oninput="HOLD=1" style="width:100%">${esc(E.notes)}</textarea>
+   <div class="tools"><button class="btn" onclick="exSave()">${ic('ok')} حفظ</button><button class="btn ghost" onclick="exSave(1);exPrint()">${ic('print')} طباعة</button><button class="btn ghost sm" onclick="exClear()">تفريغ الجدول</button></div></div>`};
+function mExam(k){const E=exGet(k),G=E.g,T0=EXT.find(x=>x[0]==k)[1];const H={v:'',bg:'#F8CBAD'};
+  const rows=[[{v:'اليوم',bg:'#F8CBAD',b:1},{v:'التاريخ',bg:'#F8CBAD',b:1},...G.map(gn=>({v:gn,bg:'#E3EEFB',b:1}))],
+    ...E.rows.map(r=>[{v:wdOf(r.d),bg:'#F8CBAD',b:1},{v:mdOf(r.d),bg:'#F8CBAD',b:1},...G.map((_,j)=>{const v=(r.c[j]||'').trim();return !v||v=='بلا امتحان'?{v:'',bg:'#9E9E9E'}:{v,b:1,bg:j%2?'#F4F7FB':'#E3EEFB'}})])];
+  return{title:T0+' للعام الدراسي '+YR,sub:'إعدادية سيناء للبنين',sheet:'جدول الامتحانات',rows,orient:'landscape',paper:'A4',fs:12,hr:1,ww:[1.3,1.2,...G.map(()=>2.2)],grow:1.8,fit1:1,pad:1.4,foot:[],notes:E.notes,
+    brand:{right:{img:LOGO_S,h:20},center:{lines:[{t:T0+' للعام الدراسي '+YR,sz:15,b:1},{t:'إعدادية سيناء للبنين',sz:12,b:1}]},left:{lines:[]},w:.2}}}
+function exPrint(){const m=mExam(EXK),N=String(m.notes||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  pdfRun(m.title,'A4','landscape',async D=>{const lh=10.5*PTM*PXM*1.55,res=N.length?(N.length*1.25+2.2)*lh:0;const ob=Object.getOwnPropertyDescriptor(PDoc.prototype,'B');
+    Object.defineProperty(D,'B',{get(){return ob.get.call(this)-res},configurable:true});await pSheet(D,m);delete D.B;
+    if(N.length){D.gap(3);D.text('التعليمات الامتحانية: -',{sz:11.5,b:1});N.forEach((t,i)=>D.text(toAr(i+1)+'- '+t.replace(/^\d+\s*[-–.]\s*/,''),{sz:10.5,b:1}))}})}
+
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
 function instShow(){const ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),and=/Android/.test(ua);
@@ -2877,12 +2927,13 @@ function view(v){if(!V[v])v='h';if(v!=cur){cur=v;ED=null;SEL=null;EDIT=0;TEDIT=0
 function render(){if(!$('app')||$('app').hidden)return;PEND=0;$('nav').innerHTML=navg().map(([gn,L])=>`<div class="ng">${gn?`<span>${gn}</span>`:''}${L.map(([k,n,i])=>`<button class="nv" ${k==cur?'aria-current="page"':''} onclick="view('${k}')">${ic(i)}<span>${n}</span></button>`).join('')}</div>`).join('');
   $('ptitle').textContent=TITLE[cur]||'';$('main').innerHTML=V[cur]();bindDrop();bindGrid()}
 /* ================= hubs: the home screen and the side menu show a few groups; each group opens its own page of icons ================= */
-const HUBS=[['gt','الجداول','cal','الجدول الأسبوعي، الاحتياط، مراقبة الساحة',['t','x','yd','o','c']],
+NAVG0[1][1].push(['ex','جداول الامتحانات','doc']);TITLE.ex='جداول الامتحانات';
+const HUBS=[['gt','الجداول','cal','الجدول الأسبوعي، الامتحانات، الاحتياط، مراقبة الساحة',['t','ex','x','yd','o','c']],
   ['gs','الطلاب','users','الأسماء، الغياب، الدرجات والنتائج والسجلات',['p','a','g','r','n','s6','sw','q','z']],
   ['gf','المدرسون والملاك','teacher','المدرسون، الملاك، الجرد والرواتب',['m','f','i','k','sal']],
   ['gl','الكتب والمراسلات','mail','الكتب الرسمية، النماذج، الصادر والوارد',['l','lt','y']],
   ['gy','البوابة والنظام','globe','بوابة المدرسين والطلاب، التطبيق، النسخ الاحتياطي',['w','app','b']]];
-const HDESC={t:'توليد آلي، تعديل يدوي، وطباعة A4 وA3',x:'حصص المدرس الغائب ومن يغطيها',yd:'جدول المراقبين الأسبوعي',o:'جدول توزيع الحصص الرسمي',c:'الشعب والمواد المعتمدة لكل صف',
+const HDESC={ex:'الشهرية ونصف السنة ونهاية السنة بالدورين',t:'توليد آلي، تعديل يدوي، وطباعة A4 وA3',x:'حصص المدرس الغائب ومن يغطيها',yd:'جدول المراقبين الأسبوعي',o:'جدول توزيع الحصص الرسمي',c:'الشعب والمواد المعتمدة لكل صف',
   p:'إضافة يدوية أو من ملف Word وPDF وExcel',a:'حاضر، غائب، مجاز، وإنذارات الغياب',g:'الفصلان ونصف السنة والنهائي والإكمال',r:'بطاقة الدرجات الرسمية وكشوف النتائج',n:'النموذج الرسمي للنهائي ونصف السنة',s6:'استمارة طلاب السادس',sw:'السجل الوسطي حسب النموذج',q:'الأسماء وأرقام الصفحات وصور السجل',z:'السجلات الوسطية وبوردات الدرجات الوزارية',
   m:'الحصص والمواد وأوقات عدم التوفر',f:'الإحصائيات، داخل وخارج قوى العمل',i:'السجل الإحصائي للملاك',k:'الملفات الكاملة، الخدمة والتقاعد',sal:'الرواتب الشهرية وتفاصيلها',
   l:'إنشاء وأرشفة الكتب بالقالب الرسمي',lt:'نماذج جاهزة تنملي بالأسماء',y:'سجل الكتب مع الجهة والتاريخ والصور',w:'نشر الجداول والأسماء للمدرسين والطلاب',app:'تثبيت التطبيق وتحديثه التلقائي',b:'تنزيل واسترجاع كل البيانات'};
