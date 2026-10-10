@@ -2822,6 +2822,11 @@ function mig22(){try{if(!OWN||!YD||YD.mig22||!YD.mig21||!Array.isArray(DATA)||!D
   joint('وسام رياض','حاسوب','الرابع العلمي أ','الرابع العلمي ب',1);joint('وسام رياض','حاسوب','الرابع العلمي ج','الرابع العلمي د',1);joint('وسام رياض','حاسوب','الرابع الأدبي أ','الرابع الأدبي ب',9);
   YD.mig22=1;MIGRG=1;setTimeout(()=>{try{P.cfg()}catch(e){}},0)}catch(e){console.error(e)}}
 {const _seed22=seedMeta;seedMeta=function(){_seed22();mig22()}}
+/* lesson times (10 Oct 2026): Sun–Tue 8:00–12:30 breaks after lessons 2 and 4; Wed–Thu 12:30–4:30 breaks after lessons 2 and 4 */
+const TM23A=[['8:00 ص','8:40 ص'],['8:40 ص','9:15 ص'],['9:25 ص','10:00 ص'],['10:00 ص','10:35 ص'],['10:45 ص','11:20 ص'],['11:20 ص','11:55 ص'],['11:55 ص','12:30 م']],
+  TM23B=[['12:30 م','1:10 م'],['1:10 م','1:50 م'],['2:00 م','2:35 م'],['2:35 م','3:10 م'],['3:20 م','3:55 م'],['3:55 م','4:30 م'],['','']];
+function mig23(){try{if(!OWN||!YD||YD.mig23)return;TMS=[TM23A,TM23A,TM23A,TM23B,TM23B].map(d=>d.map(x=>[...x]));YD.mig23=1;setTimeout(()=>{try{P.cfg();render()}catch(e){}},0)}catch(e){console.error(e)}}
+{const _seed23=seedMeta;seedMeta=function(){_seed23();mig23()}}
 
 /* ---------- install on home screen / desktop ---------- */
 const APP_URL='https://claude.ai/artifact/5JC8UcGa3EQ4vA2bSmdmfo';
